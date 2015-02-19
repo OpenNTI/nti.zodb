@@ -52,6 +52,7 @@ setup(
 		'setuptools',
         'perfmetrics',
         'repoze.zodbconn' if not IS_PYPY else '', 
+        'zc.zlibstorage',
         'ZODB',
         'zope.component',
         'zope.copy',
@@ -62,6 +63,9 @@ setup(
         'nti.common',
         'nti.schema',
 	],
+    extras_require={
+        'test': TESTS_REQUIRE,
+    },
     dependency_links=[
         'git+https://github.com/NextThought/nti.schema.git#egg=nti.schema',
         'git+https://github.com/NextThought/nti.nose_traceback_info.git#egg=nti.nose_traceback_info'
