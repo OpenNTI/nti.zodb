@@ -3,10 +3,6 @@ from setuptools import setup, find_packages
 
 VERSION = '0.0.0'
 
-import platform
-py_impl = getattr(platform, 'python_implementation', lambda: None)
-IS_PYPY = py_impl() == 'PyPy'
-
 entry_points = {
 	'console_scripts': [
 	],
@@ -39,9 +35,9 @@ setup(
 		'Operating System :: OS Independent',
 		'Programming Language :: Python :: 2',
 		'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+		'Programming Language :: Python :: 3',
+		'Programming Language :: Python :: 3.3',
+		'Programming Language :: Python :: 3.4',
 		'Programming Language :: Python :: Implementation :: CPython'
 	],
 	packages=find_packages('src'),
@@ -51,7 +47,7 @@ setup(
 	install_requires=[
 		'setuptools',
 		'perfmetrics',
-		'repoze.zodbconn' if not IS_PYPY else '', 
+		'repoze.zodbconn',
 		'zc.zlibstorage',
 		'ZODB',
 		'zope.component',
@@ -61,13 +57,12 @@ setup(
 		'zope.minmax',
 		'zope.security',
 		'nti.common',
-        'nti.nose_traceback_info'
+		'nti.nose_traceback_info'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
 	},
 	dependency_links=[
-		'git+https://github.com/NextThought/nti.schema.git#egg=nti.schema',
 		'git+https://github.com/NextThought/nti.nose_traceback_info.git#egg=nti.nose_traceback_info'
 	],
 	entry_points=entry_points
