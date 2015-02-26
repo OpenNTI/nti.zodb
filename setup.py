@@ -17,6 +17,7 @@ TESTS_REQUIRE = [
 	'nose2[coverage_plugin]',
 	'pyhamcrest',
 	'zope.testing',
+	'nti.nose_traceback_info',
 	'nti.testing'
 ]
 
@@ -56,8 +57,7 @@ setup(
 		'zope.interface',
 		'zope.minmax',
 		'zope.security',
-		'nti.common',
-		'nti.nose_traceback_info'
+		'nti.common'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
