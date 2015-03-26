@@ -11,6 +11,11 @@ logger = __import__('logging').getLogger(__name__)
 
 # pylint:disable=W0212
 
+from ZODB.interfaces import IBroken
+
+from ZODB.POSException import POSError
+from ZODB.POSException import POSKeyError
+
 def readCurrent(obj, container=True):
 	"""
 	Persistence safe wrapper around zodb connection readCurrent;
@@ -36,3 +41,19 @@ def readCurrent(obj, container=True):
 		except AttributeError:
 			pass
 	return obj
+
+def is_broken(obj, uid=None):
+	result = False
+	try:
+		if obj is None:
+			logger.warn("Ignoring NULL object %s", uid)
+			result = (uid is not None)
+		else:
+			if hasattr(obj, '_p_activate'):
+				obj._p_activate()
+			result = IBroken.providedBy(obj)
+	except POSError:	
+		logger.error("Ignoring broken object %s, %s", type(obj), uid)
+		result = True
+	return result
+isBroken = is_broken
