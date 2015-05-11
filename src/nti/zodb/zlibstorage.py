@@ -13,18 +13,13 @@ logger = __import__('logging').getLogger(__name__)
 
 import os
 
-try:
-	from repoze.zodbconn import resolvers
-except ImportError: # pypy?
-	class resolvers(object):
-		ClientStorageURIResolver = object
-		RESOLVERS = {}
+from repoze.zodbconn import resolvers
 
 from nti.common import make_cache_dir
 
 class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
 	"""
-	Wraps :class:`ZEO.ClientStorage.ClientStorage` 
+	Wraps :class:`ZEO.ClientStorage.ClientStorage`
 	with zc.zlibstorage when using the ``zlibzeo`` URI scheme.
 	"""
 
