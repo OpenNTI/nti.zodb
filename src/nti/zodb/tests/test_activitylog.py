@@ -10,15 +10,18 @@ __docformat__ = "restructuredtext en"
 from hamcrest import assert_that
 from hamcrest import has_property
 
+import unittest
+
 from nti.zodb.activitylog import _AbstractActivityMonitor as ActivityMonitor
 
-def test_base():
-	
-	class Base(object):
-		pass
+class TestBase(unittest.TestCase):
 
-	base = Base()
-	base.b = 1
-	mon = ActivityMonitor( base )
+	def test_base(self):
 
-	assert_that( mon, has_property( 'b', 1 ) )
+		class Base(object):
+			b = 1
+
+		base = Base()
+		mon = ActivityMonitor( base )
+
+		assert_that( mon, has_property( 'b', 1 ) )
