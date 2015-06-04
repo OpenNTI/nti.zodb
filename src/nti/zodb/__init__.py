@@ -52,7 +52,7 @@ def is_broken(obj, uid=None):
 			if hasattr(obj, '_p_activate'):
 				obj._p_activate()
 			result = IBroken.providedBy(obj)
-	except POSError:	
+	except (POSError, TypeError):	
 		logger.error("Ignoring broken object %s, %s", type(obj), uid)
 		result = True
 	return result
