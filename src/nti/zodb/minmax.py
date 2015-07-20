@@ -117,12 +117,13 @@ def ConstantZeroValue():
 	return _czv
 ConstantZeroValue.__doc__ = _ConstantZeroValue.__doc__
 
-class NumericMaximum(AbstractNumericValue,Maximum):
+class NumericMaximum(AbstractNumericValue, Maximum):
 	"""
 	Maximizes the number during conflicts.
 	"""
+_SafeMaximum = NumericMaximum # BWC
 
-class NumericMinimum(AbstractNumericValue,Minimum):
+class NumericMinimum(AbstractNumericValue, Minimum):
 	"""
 	Minimizes the number during conflicts.
 	"""
