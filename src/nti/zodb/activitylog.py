@@ -30,10 +30,10 @@ class _AbstractActivityMonitor(object):
 		db_name = conn.db().database_name
 		if self._base is not None:
 			self._base.closedConnection(conn)
-		conn.getTransferCounts(True) # Make sure connection counts are cleared
-		self._closedConnection( loads, stores, db_name )
+		conn.getTransferCounts(True)  # Make sure connection counts are cleared
+		self._closedConnection(loads, stores, db_name)
 
-	def _closedConnection( self, loads, stores, db_name ):
+	def _closedConnection(self, loads, stores, db_name):
 		raise NotImplementedError()
 
 	def __getattr__(self, name):
@@ -44,9 +44,9 @@ class LogActivityMonitor(_AbstractActivityMonitor):
 	ZODB database activity monitor that logs connection transfer information.
 	"""
 
-	def _closedConnection(self, loads, stores, db_name ):
-		logger.debug( "closedConnection={'loads': %5d, 'stores': %5d, 'database': %s}",
-					  loads, stores, db_name )
+	def _closedConnection(self, loads, stores, db_name):
+		logger.debug("closedConnection={'loads': %5d, 'stores': %5d, 'database': %s}",
+					 loads, stores, db_name)
 
 try:
 	from perfmetrics import statsd_client
@@ -58,7 +58,7 @@ class StatsdActivityMonitor(_AbstractActivityMonitor):
 	ZODB database activity monitor that stores counters in statsd. Experimental.
 	"""
 
-	def _closedConnection( self, loads, stores, db_name ):
+	def _closedConnection(self, loads, stores, db_name):
 		statsd = statsd_client()
 		if statsd is None:
 			return
@@ -67,11 +67,11 @@ class StatsdActivityMonitor(_AbstractActivityMonitor):
 		# counters are aggregated across all instances, gauges (by default) are broken out
 		# by host
 		buf = []
-		statsd.gauge( 'ZODB.DB.' + db_name + '.loads',   loads, buf=buf )
-		statsd.gauge( 'ZODB.DB.' + db_name + '.stores', stores, buf=buf )
-		statsd.sendbuf( buf )
+		statsd.gauge('ZODB.DB.' + db_name + '.loads', loads, buf=buf)
+		statsd.gauge('ZODB.DB.' + db_name + '.stores', stores, buf=buf)
+		statsd.sendbuf(buf)
 
-def register_subscriber( event ):
+def register_subscriber(event):
 	"""
 	Subscriber to the :class:`zope.processlifetime.IDatabaseOpenedWithRoot`
 	that registers an activity monitor.
@@ -80,4 +80,4 @@ def register_subscriber( event ):
 	# WithRoot fires only once.
 	for database in event.database.databases.values():
 		dam = database.getActivityMonitor()
-		database.setActivityMonitor( StatsdActivityMonitor(LogActivityMonitor(dam)))
+		database.setActivityMonitor(StatsdActivityMonitor(LogActivityMonitor(dam)))

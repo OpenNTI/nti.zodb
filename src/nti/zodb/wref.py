@@ -11,9 +11,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from persistent.wref import WeakRef
-
 from zope import copy
+
+from persistent.wref import WeakRef
 
 class CopyingWeakRef(WeakRef):
 	"""

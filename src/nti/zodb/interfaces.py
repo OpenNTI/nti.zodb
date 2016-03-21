@@ -14,7 +14,7 @@ from zope import interface
 
 from zope.minmax.interfaces import IAbstractValue
 
-from .schema import Number
+from nti.schema.field import Number
 
 class ITokenBucket(interface.Interface):
 	"""

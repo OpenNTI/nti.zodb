@@ -9,9 +9,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-try:
-	from gevent import sleep
-except ImportError:
-	from time import sleep
-
-sleep = sleep  # pylint
+import zope.deferredimport
+zope.deferredimport.initialize()
+zope.deferredimport.deprecatedFrom(
+    "Moved to nti.common._compat",
+    "nti.common._compat",
+    "sleep")

@@ -42,7 +42,7 @@ def readCurrent(obj, container=True):
 			pass
 	return obj
 
-def is_broken(obj, uid=None):
+def isBroken(obj, uid=None):
 	result = False
 	try:
 		if obj is None:
@@ -53,8 +53,8 @@ def is_broken(obj, uid=None):
 			if hasattr(obj, '_p_activate'):
 				obj._p_activate()
 			result = IBroken.providedBy(obj)
-	except (POSError, TypeError):	
+	except (POSError, TypeError):
 		logger.error("Ignoring broken object %s, %s", type(obj), uid)
 		result = True
 	return result
-isBroken = is_broken
+is_broken = isBroken

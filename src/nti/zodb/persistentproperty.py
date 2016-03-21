@@ -31,9 +31,9 @@ def _get_or_make_cache(cls):
 		# descriptors. Order matters.
 		for _cls in reversed(cls.mro()):
 			for k, v in _cls.__dict__.items():
-				if isinstance( v, PropertyHoldingPersistent ):
+				if isinstance(v, PropertyHoldingPersistent):
 					cache[k] = v
-		setattr( cls, '_v_persistentpropertyholder_cache', cache )
+		setattr(cls, '_v_persistentpropertyholder_cache', cache)
 	return cache
 
 class PersistentPropertyHolder(Persistent):
@@ -66,17 +66,17 @@ class PersistentPropertyHolder(Persistent):
 		correctly.
 	"""
 
-	def __new__( cls, *args, **kwargs ):
+	def __new__(cls, *args, **kwargs):
 		# We do this is __new__ and avoid a metaclass so that subclasses can
 		# still choose their own metaclass.
 		# Sadly, some extension classes (notably Acquisition.Implicit)
 		# do not call super.__new__, so we cannat count on this being done here.
-		_get_or_make_cache( cls )
-		return super(PersistentPropertyHolder,cls).__new__( cls, *args, **kwargs )
+		_get_or_make_cache(cls)
+		return super(PersistentPropertyHolder, cls).__new__(cls, *args, **kwargs)
 
-	def __setattr__( self, name, value ):
-		descriptor = _get_or_make_cache( type(self) ).get( name )
+	def __setattr__(self, name, value):
+		descriptor = _get_or_make_cache(type(self)).get(name)
 		if descriptor is not None:
-			descriptor.__set__( self, value )
+			descriptor.__set__(self, value)
 		else:
-			super(PersistentPropertyHolder,self).__setattr__( name, value )
+			super(PersistentPropertyHolder, self).__setattr__(name, value)

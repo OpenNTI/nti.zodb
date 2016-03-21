@@ -30,7 +30,6 @@ def wref_copy_factory(ref):
 	(since we cannot create a reference to None).
 	"""
 	def factory(toplevel, register):
-		# We do need a new object, presumably we're moving
-		# databases
-		return WeakRef( ref() )
+		# We do need a new object, presumably we're moving databases
+		return WeakRef(ref())
 	return factory

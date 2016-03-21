@@ -17,8 +17,8 @@ from zope import interface
 
 from zope.minmax._minmax import Maximum, Minimum, AbstractValue
 
-from .interfaces import INumericValue
-from .interfaces import INumericCounter
+from nti.zodb.interfaces import INumericValue
+from nti.zodb.interfaces import INumericCounter
 
 # Give all these things a 'set' method, a point for subclasses
 # to potentially override

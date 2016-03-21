@@ -15,12 +15,12 @@ from time import time
 
 from zope import interface
 
-from ._compat import sleep
+from nti.common._compat import sleep
 
-from .minmax import NumericMaximum
-from .minmax import NumericMinimum
+from nti.zodb.interfaces import ITokenBucket
 
-from .interfaces import ITokenBucket
+from nti.zodb.minmax import NumericMaximum
+from nti.zodb.minmax import NumericMinimum
 
 @interface.implementer(ITokenBucket)
 class PersistentTokenBucket(object):

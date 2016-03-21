@@ -13,27 +13,29 @@ logger = __import__('logging').getLogger(__name__)
 
 import urlparse
 
-from zope.schema.interfaces import InvalidURI
 from zope.contenttype.parse import parse as ct_parse
 
 from zope.file import file as zfile
+
 from zope.file.interfaces import IFile
+
+from zope.schema.interfaces import InvalidURI
 
 from nti.common import dataurl
 
-def _dict_setattr( instance, name, value ):
+def _dict_setattr(instance, name, value):
 	instance.__dict__[name] = value
 
-def _dict_getattr( instance, name, default=_dict_setattr ):
+def _dict_getattr(instance, name, default=_dict_setattr):
 	if default is _dict_setattr:
 		try:
 			return instance.__dict__[name]
-		except KeyError: #pragma: no cover
-			raise AttributeError( name )
-	return instance.__dict__.get( name, default )
+		except KeyError:  # pragma: no cover
+			raise AttributeError(name)
+	return instance.__dict__.get(name, default)
 
-def _dict_delattr( instance, name ): # pragma: no cover
-	instance.__dict__.pop( name, None )
+def _dict_delattr(instance, name):  # pragma: no cover
+	instance.__dict__.pop(name, None)
 
 class UrlProperty(object):
 	"""
@@ -57,6 +59,7 @@ class UrlProperty(object):
 	url_attr_name = '_url'
 	file_attr_name = '_file'
 	data_name = 'data'
+
 	ignore_url_with_missing_host = False
 	reject_url_with_missing_host = False
 
@@ -64,8 +67,8 @@ class UrlProperty(object):
 	_setattr = staticmethod(setattr)
 	_delattr = staticmethod(delattr)
 
-	def __init__( self, data_name=None, url_attr_name=None, 
-				  file_attr_name=None, use_dict=False ):
+	def __init__(self, data_name=None, url_attr_name=None,
+				 file_attr_name=None, use_dict=False):
 		"""
 		:keyword bool use_dict: If set to `True`, then the instance dictionary will be used
 			explicitly for access to the url and file data. This is necessary if this property
@@ -85,80 +88,80 @@ class UrlProperty(object):
 			self._setattr = _dict_setattr
 			self._delattr = _dict_delattr
 
-	def make_getitem( self ):
+	def make_getitem(self):
 		"""
 		As a convenience and to help with traversability, the results
 		of this method can be assigned to __getitem__ (if there is no other instance
 		of this property, or no other getitem)
 		"""
-		def __getitem__( s, key ):
+		def __getitem__(s, key):
 			if key == self.data_name:
-				return self._getattr( s, self.file_attr_name, None )
-			raise KeyError( key )
+				return self._getattr(s, self.file_attr_name, None)
+			raise KeyError(key)
 		return __getitem__
 
-	def get_file( self, instance ):
+	def get_file(self, instance):
 		"""
-		Return the :class:`zope.file.interfaces.IFile` for the instance 
+		Return the :class:`zope.file.interfaces.IFile` for the instance
 		if there is one, otherwise None.
 		"""
-		the_file = self._getattr( instance, self.file_attr_name, None )
-		if IFile.providedBy( the_file ):
+		the_file = self._getattr(instance, self.file_attr_name, None)
+		if IFile.providedBy(the_file):
 			return the_file
 
-	def __get__( self, instance, owner ):
+	def __get__(self, instance, owner):
 		if instance is None:
 			return self
 
-		the_file = self.get_file( instance )
+		the_file = self.get_file(instance)
 		if the_file is not None:
 			fp = the_file.open()
 			raw_bytes = fp.read()
 			fp.close()
-			return dataurl.encode( raw_bytes, the_file.mimeType )
+			return dataurl.encode(raw_bytes, the_file.mimeType)
 
-		return self._getattr( instance, self.url_attr_name )
+		return self._getattr(instance, self.url_attr_name)
 
-	def __set__( self, instance, value ):
-		if instance is None: #pragma: no cover
+	def __set__(self, instance, value):
+		if instance is None:  # pragma: no cover
 			return
 
 		if not value:
-			self._setattr( instance, self.file_attr_name, None )
-			self._setattr( instance, self.url_attr_name, value )
+			self._setattr(instance, self.file_attr_name, None)
+			self._setattr(instance, self.url_attr_name, value)
 			return
 
-		if value.startswith( b'data:' ):
-			raw_bytes, mime_type = dataurl.decode( value )
-			major, minor, parms = ct_parse(  mime_type )
-			the_file = zfile.File( mimeType=major + '/' + minor, parameters=parms )
-			fp = the_file.open( 'w' )
-			fp.write( raw_bytes )
+		if value.startswith(b'data:'):
+			raw_bytes, mime_type = dataurl.decode(value)
+			major, minor, parms = ct_parse(mime_type)
+			the_file = zfile.File(mimeType=major + '/' + minor, parameters=parms)
+			fp = the_file.open('w')
+			fp.write(raw_bytes)
 			fp.close()
 			the_file.__parent__ = instance
 			the_file.__name__ = self.data_name
 
 			# By keeping url in __dict__, toExternalDictionary
 			# still does the right thing
-			self._setattr( instance, self.url_attr_name, None )
-			self._setattr( instance, self.file_attr_name, the_file )
+			self._setattr(instance, self.url_attr_name, None)
+			self._setattr(instance, self.file_attr_name, the_file)
 		else:
 			# Be sure it at least parses
-			parsed = urlparse.urlparse( value )
+			parsed = urlparse.urlparse(value)
 			if not parsed.netloc:
 				if self.reject_url_with_missing_host:
-					raise InvalidURI( value )
+					raise InvalidURI(value)
 				if self.ignore_url_with_missing_host:
 					return
 
-			self._setattr( instance, self.file_attr_name, None )
-			self._setattr( instance, self.url_attr_name, value )
+			self._setattr(instance, self.file_attr_name, None)
+			self._setattr(instance, self.url_attr_name, value)
 
-	def __delete__( self, instance ):
+	def __delete__(self, instance):
 		if instance is None:
 			return
 		for name in self.url_attr_name, self.file_attr_name:
 			try:
-				self._delattr( instance, name )
-			except AttributeError: #pragma: no cover
+				self._delattr(instance, name)
+			except AttributeError:  # pragma: no cover
 				pass

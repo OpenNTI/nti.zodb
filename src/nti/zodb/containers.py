@@ -12,11 +12,11 @@ logger = __import__('logging').getLogger(__name__)
 import zope.deferredimport
 zope.deferredimport.initialize()
 zope.deferredimport.deprecatedFrom(
-	"Moved to nti.common",
+	"Moved to nti.common.time",
 	"nti.common.time",
+	"ZERO_64BIT_INT",
 	"time_to_64bit_int",
 	"bit64_int_to_time",
-	"ZERO_64BIT_INT",
 	"_long_to_double_bits",
 	"_double_bits_to_long",
 	"_long_to_double_bits",

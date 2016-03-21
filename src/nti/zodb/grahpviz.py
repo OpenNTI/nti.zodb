@@ -16,25 +16,25 @@ import collections
 
 from ZODB.utils import u64
 
-def _node_name( oid, oiddbname ):
+def _node_name(oid, oiddbname):
 	return b'%s.%s' % (oiddbname, u64(oid))
 
 def get_reference_dumper(refs, multi_refs, name_predicate):
 	# This is a callback which will be called whenever a reference is found.
 	filtered_oids = set()
 	def dump_reference(oid, oiddbname, roid, rdbname, rclass):
-		if name_predicate(rclass) and (oiddbname,oid) not in filtered_oids:
-			refs.append( b'%s -> %s\n' % ( _node_name(oid, oiddbname), 
-										  _node_name( roid, rdbname ) ) )
+		if name_predicate(rclass) and (oiddbname, oid) not in filtered_oids:
+			refs.append(b'%s -> %s\n' % (_node_name(oid, oiddbname),
+										  _node_name(roid, rdbname)))
 		else:
-			filtered_oids.add( (rdbname, roid) )
+			filtered_oids.add((rdbname, roid))
 		multi_refs[rdbname].add(roid)
 		multi_refs[oiddbname].add(oid)
 	return dump_reference
 
 def export_databases(context, name_predicate=None):
 	"""
-	Walks a ZODB databases for everything reachable from ``context`` and 
+	Walks a ZODB databases for everything reachable from ``context`` and
 	dumps the object graph in graphviz .dot format.
 	"""
 	f = open('plone.dot', 'w')
@@ -48,7 +48,7 @@ def export_databases(context, name_predicate=None):
 	# database-name => oids referenced
 	multi_refs = collections.defaultdict(set)
 	done_oids = set()
-	
+
 	# First, the things from this database itself
 	if name_predicate is None:
 		name_predicate = id
@@ -68,7 +68,7 @@ def export_databases(context, name_predicate=None):
 			continue
 		new_conn = conn.get_connection(db_name)
 		for oid in list(oids):
-			_export_database(f, new_conn, oid, reference_callback, 
+			_export_database(f, new_conn, oid, reference_callback,
 							 name_predicate, done_oids)
 
 	_refs()
@@ -116,7 +116,7 @@ def _walk_database(conn, root_oid, reference_callback=None, name_predicate=None,
 			# fetch the pickle
 			p, _ = conn._storage.load(oid)
 		except Exception:
-			#import traceback; traceback.print_exc()
+			# import traceback; traceback.print_exc()
 			print("Failed to find", repr(oid), "in", conn_name)
 			logger.warn("broken reference for oid %s", repr(oid),
 						 exc_info=True)
@@ -133,8 +133,9 @@ def _walk_database(conn, root_oid, reference_callback=None, name_predicate=None,
 			# yield the oid and pickle
 			yield conn_name, oid, p
 
+from ZODB._compat import Unpickler
+
 from ZODB.serialize import BytesIO
-from ZODB.serialize import Unpickler
 
 def referencesf(p, oids=None, pickle_db_name="", name_predicate=None):
 	"""
@@ -163,7 +164,7 @@ def referencesf(p, oids=None, pickle_db_name="", name_predicate=None):
 		# TODO: We would like to filter out __parent__, usually,
 		# so we only go down the tree. Without actually persistently
 		# loading, that's  hard.
-	except (AttributeError,ImportError):
+	except (AttributeError, ImportError):
 		u = Unpickler(BytesIO(p))
 		u.persistent_load = refs.append
 		u.noload()
