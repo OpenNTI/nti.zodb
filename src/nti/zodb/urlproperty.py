@@ -136,7 +136,7 @@ class UrlProperty(object):
 
 		if value.startswith(b'data:'):
 			raw_bytes, mime_type = dataurl.decode(value)
-			if self.max_avatar_size and raw_bytes >= raw_bytes:
+			if self.max_avatar_size and len(raw_bytes) >= self.max_avatar_size:
 				raise ConstraintNotSatisfied("The uploaded file is too large.")
 			major, minor, parms = ct_parse(mime_type)
 			the_file = zfile.File(mimeType=major + '/' + minor, parameters=parms)
