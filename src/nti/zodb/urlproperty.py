@@ -20,6 +20,7 @@ from zope.file import file as zfile
 from zope.file.interfaces import IFile
 
 from zope.schema.interfaces import InvalidURI
+from zope.schema.interfaces import ConstraintNotSatisfied
 
 from nti.common import dataurl
 
@@ -55,6 +56,8 @@ class UrlProperty(object):
 	(through implementing __getitem__ or ITraversable or an adapter).
 
 	"""
+
+	max_avatar_size = None
 
 	url_attr_name = '_url'
 	file_attr_name = '_file'
@@ -133,6 +136,8 @@ class UrlProperty(object):
 
 		if value.startswith(b'data:'):
 			raw_bytes, mime_type = dataurl.decode(value)
+			if self.max_avatar_size and raw_bytes >= raw_bytes:
+				raise ConstraintNotSatisfied("The uploaded file is too large.")
 			major, minor, parms = ct_parse(mime_type)
 			the_file = zfile.File(mimeType=major + '/' + minor, parameters=parms)
 			fp = the_file.open('w')
