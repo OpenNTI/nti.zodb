@@ -90,7 +90,7 @@ class INumericCounter(INumericValue):
 
 from ZODB.POSException import StorageError
 
-class LegacyUnableToAcquireCommitLock(StorageError):
+class ZODBUnableToAcquireCommitLock(StorageError):
 	"""
 	A ZODB storage (typically RelStorage) was unable
 	to acquire the required commit lock.
@@ -104,4 +104,4 @@ try:
 	from relstorage.adapters.interfaces import UnableToAcquireCommitLockError
 	UnableToAcquireCommitLockError = UnableToAcquireCommitLockError # pylint
 except ImportError:
-	UnableToAcquireCommitLockError = LegacyUnableToAcquireCommitLock
+	UnableToAcquireCommitLockError = ZODBUnableToAcquireCommitLock
