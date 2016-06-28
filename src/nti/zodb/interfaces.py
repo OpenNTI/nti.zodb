@@ -102,6 +102,6 @@ class ZODBUnableToAcquireCommitLock(StorageError):
 		
 try:
 	from relstorage.adapters.interfaces import UnableToAcquireCommitLockError
-	UnableToAcquireCommitLockError = UnableToAcquireCommitLockError # pylint
+	UnableToAcquireCommitLock = UnableToAcquireCommitLockError # alias
 except ImportError:
-	UnableToAcquireCommitLockError = ZODBUnableToAcquireCommitLock
+	UnableToAcquireCommitLock = ZODBUnableToAcquireCommitLock
