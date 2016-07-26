@@ -15,7 +15,7 @@ from time import time
 
 from zope import interface
 
-from nti.common._compat import sleep
+from nti.zodb._compat import sleep
 
 from nti.zodb.interfaces import ITokenBucket
 
