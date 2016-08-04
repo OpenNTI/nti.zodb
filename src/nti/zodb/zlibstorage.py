@@ -15,7 +15,7 @@ import os
 
 from repoze.zodbconn import resolvers
 
-from nti.common import make_cache_dir
+from nti.zodb.common import make_cache_dir
 
 class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
 	"""
