@@ -28,12 +28,12 @@ class CopyingWeakRef(WeakRef):
 	the case in cross-database refs.
 
 	"""
-	def __init__( self, ob ):
-		super(CopyingWeakRef, self).__init__( ob )
-		self._copy = copy.copy( ob )
+	def __init__(self, ob):
+		super(CopyingWeakRef, self).__init__(ob)
+		self._copy = copy.copy(ob)
 
-	def __call__( self ):
-		result = super(CopyingWeakRef, self).__call__( )
+	def __call__(self):
+		result = super(CopyingWeakRef, self).__call__()
 		if result is None:
 			result = self._copy
 		return result

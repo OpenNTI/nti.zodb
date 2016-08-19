@@ -48,10 +48,12 @@ setup(
 	install_requires=[
 		'setuptools',
 		'perfmetrics',
+		'persistent',
 		'repoze.zodbconn',
 		'zc.zlibstorage',
 		'ZODB',
 		'zope.component',
+		'zope.contenttype',
 		'zope.copy',
 		'zope.file',
 		'zope.interface',
