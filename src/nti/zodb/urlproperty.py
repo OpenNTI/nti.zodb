@@ -22,7 +22,7 @@ from zope.file.interfaces import IFile
 from zope.schema.interfaces import InvalidURI
 from zope.schema.interfaces import ConstraintNotSatisfied
 
-from nti.common import dataurl
+from nti.property import dataurl
 
 def _dict_setattr(instance, name, value):
 	instance.__dict__[name] = value

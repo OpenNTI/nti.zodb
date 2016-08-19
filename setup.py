@@ -57,7 +57,7 @@ setup(
 		'zope.interface',
 		'zope.minmax',
 		'zope.security',
-		'nti.common'
+		'nti.property'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
