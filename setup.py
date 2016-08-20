@@ -53,13 +53,11 @@ setup(
 		'zc.zlibstorage',
 		'ZODB',
 		'zope.component',
-		'zope.contenttype',
 		'zope.copy',
-		'zope.file',
+		'zope.deprecation',
 		'zope.interface',
 		'zope.minmax',
-		'zope.security',
-		'nti.property'
+		'zope.security'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
