@@ -50,8 +50,10 @@ def isBroken(obj, uid=None):
 			logger.warn("Ignoring NULL object %s", msg)
 			result = (uid is not None)
 		else:
-			if hasattr(obj, '_p_activate'):
+			try:
 				obj._p_activate()
+			except (TypeError, AttributeError):
+				pass
 			result = IBroken.providedBy(obj)
 	except (POSError, TypeError):
 		logger.error("Ignoring broken object %s, %s", type(obj), uid)
