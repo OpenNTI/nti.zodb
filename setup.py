@@ -47,6 +47,7 @@ setup(
 	tests_require=TESTS_REQUIRE,
 	install_requires=[
 		'setuptools',
+		'nti.schema',
 		'perfmetrics',
 		'persistent',
 		'repoze.zodbconn',
@@ -57,6 +58,7 @@ setup(
 		'zope.deprecation',
 		'zope.interface',
 		'zope.minmax',
+		'zope.processlifetime',
 		'zope.security'
 	],
 	extras_require={
