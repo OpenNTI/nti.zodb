@@ -45,7 +45,7 @@ class LogActivityMonitor(_AbstractActivityMonitor):
 	"""
 
 	def _closedConnection(self, loads, stores, db_name):
-		logger.debug("closedConnection={'loads': %5d, 'stores': %5d, 'database': %s}",
+		logger.info("closedConnection={'loads': %5d, 'stores': %5d, 'database': %s}",
 					 loads, stores, db_name)
 
 try:
