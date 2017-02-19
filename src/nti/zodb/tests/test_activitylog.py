@@ -14,14 +14,19 @@ import unittest
 
 from nti.zodb.activitylog import _AbstractActivityMonitor as ActivityMonitor
 
+from nti.zodb.tests import SharedConfiguringTestLayer
+
+
 class TestBase(unittest.TestCase):
 
-	def test_base(self):
+    layer = SharedConfiguringTestLayer
 
-		class Base(object):
-			b = 1
+    def test_base(self):
 
-		base = Base()
-		mon = ActivityMonitor( base )
+        class Base(object):
+            b = 1
 
-		assert_that( mon, has_property( 'b', 1 ) )
+        base = Base()
+        mon = ActivityMonitor(base)
+
+        assert_that(mon, has_property('b', 1))

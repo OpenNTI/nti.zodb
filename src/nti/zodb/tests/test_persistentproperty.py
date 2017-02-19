@@ -19,21 +19,28 @@ from nti.zodb.minmax import NumericPropertyDefaultingToZero
 
 from nti.zodb.persistentproperty import PersistentPropertyHolder
 
+from nti.zodb.tests import SharedConfiguringTestLayer
+
+
 class TestPersistentProperty(unittest.TestCase):
-	
-	def test_that_if_superclass_created_first_subclass_cache_is_correct(self):
-		
-		class BaseWithProperty(PersistentPropertyHolder):
-			a = NumericPropertyDefaultingToZero( b'a', NumericMaximum, as_number=True )
-			b = NumericPropertyDefaultingToZero( b'b', MergingCounter )
-	
-		class DerivedWithProperty(BaseWithProperty):
-			c = NumericPropertyDefaultingToZero( b'c', NumericMinimum )
-	
-		base = BaseWithProperty()
-		assert_that( base._v_persistentpropertyholder_cache.keys(),
-					 contains_inanyorder('a', 'b') )
-	
-		derived = DerivedWithProperty()
-		assert_that( derived._v_persistentpropertyholder_cache.keys(),
-					 contains_inanyorder('a', 'b', 'c'))
+
+    layer = SharedConfiguringTestLayer
+
+    def test_that_if_superclass_created_first_subclass_cache_is_correct(self):
+
+        class BaseWithProperty(PersistentPropertyHolder):
+            a = NumericPropertyDefaultingToZero(b'a',
+                                                NumericMaximum,
+                                                as_number=True)
+            b = NumericPropertyDefaultingToZero(b'b', MergingCounter)
+
+        class DerivedWithProperty(BaseWithProperty):
+            c = NumericPropertyDefaultingToZero(b'c', NumericMinimum)
+
+        base = BaseWithProperty()
+        assert_that(base._v_persistentpropertyholder_cache.keys(),
+                    contains_inanyorder('a', 'b'))
+
+        derived = DerivedWithProperty()
+        assert_that(derived._v_persistentpropertyholder_cache.keys(),
+                    contains_inanyorder('a', 'b', 'c'))

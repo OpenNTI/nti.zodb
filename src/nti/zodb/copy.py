@@ -18,18 +18,19 @@ from zope.copy.interfaces import ICopyHook
 
 from persistent.wref import WeakRef
 
+
 @component.adapter(WeakRef)
 @interface.implementer(ICopyHook)
 def wref_copy_factory(ref):
-	"""
-	Weak references cannot typically be copied due to the presence
-	of the Connection attribute (in the dm value). This
-	factory makes them copyable.
+    """
+    Weak references cannot typically be copied due to the presence
+    of the Connection attribute (in the dm value). This
+    factory makes them copyable.
 
-	Currently we assume that the reference can be resolved at copy time
-	(since we cannot create a reference to None).
-	"""
-	def factory(toplevel, register):
-		# We do need a new object, presumably we're moving databases
-		return WeakRef(ref())
-	return factory
+    Currently we assume that the reference can be resolved at copy time
+    (since we cannot create a reference to None).
+    """
+    def factory(toplevel, register):
+        # We do need a new object, presumably we're moving databases
+        return WeakRef(ref())
+    return factory

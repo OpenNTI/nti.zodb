@@ -19,59 +19,64 @@ import BTrees
 
 from nti.zodb.containers import time_to_64bit_int
 
+from nti.zodb.tests import SharedConfiguringTestLayer
+
 family = BTrees.family64
+
 
 class TestContainer(unittest.TestCase):
 
-	def test_negative_values_in_btree(self):
-		bt = family.IO.BTree()
+    layer = SharedConfiguringTestLayer
 
-		for i in xrange(-1, -10000, -5):
-			bt[time_to_64bit_int(i)] = str(i)
+    def test_negative_values_in_btree(self):
+        bt = family.IO.BTree()
 
-		for i in xrange(-1, -10000, -5):
-			assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
+        for i in xrange(-1, -10000, -5):
+            bt[time_to_64bit_int(i)] = str(i)
 
-	def test_positive_values_in_btree(self):
-		bt = family.IO.BTree()
+        for i in xrange(-1, -10000, -5):
+            assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
 
-		for i in xrange(1, 10000, 10):
-			bt[time_to_64bit_int(i)] = str(i)
+    def test_positive_values_in_btree(self):
+        bt = family.IO.BTree()
 
-		for i in xrange(1, 10000, 10):
-			assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
+        for i in xrange(1, 10000, 10):
+            bt[time_to_64bit_int(i)] = str(i)
 
-	def test_increasing(self):
+        for i in xrange(1, 10000, 10):
+            assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
 
-		prev = 0
-		i = 1
-		while i < 10000:
+    def test_increasing(self):
 
-			ti = time_to_64bit_int(i)
-			nti = time_to_64bit_int(-i)
+        prev = 0
+        i = 1
+        while i < 10000:
 
-			assert_that( ti, greater_than( time_to_64bit_int(prev)))
-			assert_that( ti, greater_than( nti ))
+            ti = time_to_64bit_int(i)
+            nti = time_to_64bit_int(-i)
 
-			prev = i
-			i += 1.5
+            assert_that(ti, greater_than(time_to_64bit_int(prev)))
+            assert_that(ti, greater_than(nti))
 
-	def test_legacy_unsigned_pack_equivalent(self):
-		# We used to pack with Q, now we pack with q.
-		# Q was invalid for negative numbers, but we need to be
-		# sure that q unpacks everything the same as it used to
+            prev = i
+            i += 1.5
 
-		for i in xrange(1, 10000, 5):
-			ti = struct.pack(b'!q', i)
-			qti = struct.pack(b'!Q', i)
+    def test_legacy_unsigned_pack_equivalent(self):
+        # We used to pack with Q, now we pack with q.
+        # Q was invalid for negative numbers, but we need to be
+        # sure that q unpacks everything the same as it used to
 
-			assert_that( ti, is_(qti))
+        for i in xrange(1, 10000, 5):
+            ti = struct.pack(b'!q', i)
+            qti = struct.pack(b'!Q', i)
 
-			uti = struct.unpack(b'!q', ti)[0]
-			uqti = struct.unpack(b'!Q', qti)[0]
+            assert_that(ti, is_(qti))
 
-			assert_that( uti, is_(i))
-			assert_that( uti, is_(uqti) )
+            uti = struct.unpack(b'!q', ti)[0]
+            uqti = struct.unpack(b'!Q', qti)[0]
 
-			assert_that( struct.unpack(b'!q', qti)[0],
-						 is_(i))
+            assert_that(uti, is_(i))
+            assert_that(uti, is_(uqti))
+
+            assert_that(struct.unpack(b'!q', qti)[0],
+                        is_(i))

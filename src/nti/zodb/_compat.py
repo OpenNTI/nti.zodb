@@ -9,6 +9,45 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import sys
+import types
+
+PY3 = sys.version_info[0] == 3
+
+if PY3:  # pragma: no cover
+    text_type = str
+    class_types = type,
+    string_types = str,
+    integer_types = int,
+    binary_type = bytes
+else:
+    binary_type = str
+    text_type = unicode
+    string_types = basestring,
+    integer_types = (int, long)
+    class_types = (type, types.ClassType)
+
+if PY3:  # pragma: no cover
+    _unicode = lambda s: s
+else:
+    _unicode = unicode
+
+
+def bytes_(s, encoding='latin-1', errors='strict'):  # pragma NO COVER
+    if isinstance(s, text_type):
+        return s.encode(encoding, errors)
+    return s
+
+
+def unicode_(s, encoding='utf-8', err='strict'):
+    """
+    Decode a byte sequence and unicode result
+    """
+    s = s.decode(encoding, err) if isinstance(s, bytes) else s
+    return _unicode(s) if s is not None else None
+to_unicode = unicode_
+
+
 try:
     from gevent import sleep
 except ImportError:
