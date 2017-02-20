@@ -3,7 +3,7 @@
 """
 Logging of database connection activity. Activate this with ZCML::
 
-	<include package="nti.zodb" file="configure_activitylog.zcml" />
+    <include package="nti.zodb" file="configure_activitylog.zcml" />
 
 Originally based on code from the unreleased zc.zodbactivitylog.
 

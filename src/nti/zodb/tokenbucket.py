@@ -91,5 +91,5 @@ class PersistentTokenBucket(object):
 
     def __repr__(self):
         return "%s(%s,%s)" % (type(self).__name__, 
-							  self.capacity, 
-							  self.fill_rate)
+                              self.capacity, 
+                              self.fill_rate)

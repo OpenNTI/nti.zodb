@@ -34,7 +34,7 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
         # It expect to find 'zeo' so make that happen
         uri = uri.replace(b'zlibzeo://', b'zeo://')
         key, args, storage_kw, _ = \
-        	super(ZlibStorageClientStorageURIResolver, self).__call__(uri)
+            super(ZlibStorageClientStorageURIResolver, self).__call__(uri)
 
         # key = (args, tuple(kw items), tuple(dbkw items))
         dbkw = dict(key[2])
@@ -77,7 +77,7 @@ class ZlibStorageFileStorageURIResolver(resolvers.FileStorageURIResolver):
         # It expect to find 'file' so make that happen
         uri = uri.replace(b'zlibfile://', b'file://')
         key, args, storage_kw, _factory = \
-        	super(ZlibStorageFileStorageURIResolver, self).__call__(uri)
+            super(ZlibStorageFileStorageURIResolver, self).__call__(uri)
 
         def zlibfactory():
             db = _factory()
