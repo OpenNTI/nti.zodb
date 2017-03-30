@@ -52,6 +52,7 @@ setup(
         'perfmetrics',
         'persistent',
         'repoze.zodbconn',
+        'six',
         'zc.zlibstorage',
         'ZODB',
         'zope.component',
