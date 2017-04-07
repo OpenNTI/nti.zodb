@@ -19,19 +19,9 @@ string_types = six.string_types
 integer_types = six.integer_types
 
 if PY3:  # pragma: no cover
-    _unicode = lambda s: s
+    def _unicode(s): return str(s)
 else:
     _unicode = unicode
-
-def bytes_(s, encoding='utf-8', errors='strict'):
-    """
-    If ``s`` is an instance of ``text_type``, return
-    ``s.encode(encoding, errors)``, otherwise return ``str(s)``
-    """
-    if isinstance(s, text_type):
-        return s.encode(encoding, errors)
-    return s
-native_ = bytes_
 
 
 def unicode_(s, encoding='utf-8', err='strict'):
