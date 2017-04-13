@@ -32,7 +32,7 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
         from ZEO.ClientStorage import ClientStorage
 
         # It expect to find 'zeo' so make that happen
-        uri = uri.replace(b'zlibzeo://', b'zeo://')
+        uri = uri.replace('zlibzeo://', 'zeo://')
         key, args, storage_kw, _ = \
             super(ZlibStorageClientStorageURIResolver, self).__call__(uri)
 
@@ -75,7 +75,7 @@ class ZlibStorageFileStorageURIResolver(resolvers.FileStorageURIResolver):
         from zc.zlibstorage import ZlibStorage
 
         # It expect to find 'file' so make that happen
-        uri = uri.replace(b'zlibfile://', b'file://')
+        uri = uri.replace('zlibfile://', 'file://')
         key, args, storage_kw, _factory = \
             super(ZlibStorageFileStorageURIResolver, self).__call__(uri)
 
