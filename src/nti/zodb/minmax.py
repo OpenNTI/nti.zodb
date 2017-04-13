@@ -19,6 +19,8 @@ from zope.minmax._minmax import Maximum
 from zope.minmax._minmax import Minimum
 from zope.minmax._minmax import AbstractValue
 
+from nti.zodb._compat import text_
+
 from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
 
@@ -207,9 +209,9 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
                 want to access its ``.value`` attribute. Setting this property always
                 takes the (raw) numeric value.
         """
-        if not isinstance(name, str):  # force native string
-            raise ValueError(str("name must be native string"))
-        self.__name__ = name
+        if not isinstance(name, (str, bytes)):  # force native string
+            raise ValueError("name must be native string")
+        self.__name__ = text_(name)
         self.factory = factory
         if as_number:
             self.as_number = True
