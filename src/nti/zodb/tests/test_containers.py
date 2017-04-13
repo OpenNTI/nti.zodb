@@ -31,19 +31,19 @@ class TestContainer(unittest.TestCase):
     def test_negative_values_in_btree(self):
         bt = family.IO.BTree()
 
-        for i in xrange(-1, -10000, -5):
+        for i in range(-1, -10000, -5):
             bt[time_to_64bit_int(i)] = str(i)
 
-        for i in xrange(-1, -10000, -5):
+        for i in range(-1, -10000, -5):
             assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
 
     def test_positive_values_in_btree(self):
         bt = family.IO.BTree()
 
-        for i in xrange(1, 10000, 10):
+        for i in range(1, 10000, 10):
             bt[time_to_64bit_int(i)] = str(i)
 
-        for i in xrange(1, 10000, 10):
+        for i in range(1, 10000, 10):
             assert_that(bt, has_entry(time_to_64bit_int(i), str(i)))
 
     def test_increasing(self):
@@ -66,7 +66,7 @@ class TestContainer(unittest.TestCase):
         # Q was invalid for negative numbers, but we need to be
         # sure that q unpacks everything the same as it used to
 
-        for i in xrange(1, 10000, 5):
+        for i in range(1, 10000, 5):
             ti = struct.pack(b'!q', i)
             qti = struct.pack(b'!Q', i)
 

@@ -208,7 +208,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
                 takes the (raw) numeric value.
         """
         if not isinstance(name, str):  # force native string
-            raise ValueError("name must be native string")
+            raise ValueError(str("name must be native string"))
         self.__name__ = name
         self.factory = factory
         if as_number:
