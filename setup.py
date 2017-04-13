@@ -10,14 +10,9 @@ entry_points = {
 
 TESTS_REQUIRE = [
     'fudge',
-    'nose',
-    'nose-timer',
-    'nose-pudb',
-    'nose-progressive',
-    'nose2[coverage_plugin]',
+    'nose2',
     'pyhamcrest',
     'zope.testing',
-    'nti.nose_traceback_info',
     'nti.testing'
 ]
 
