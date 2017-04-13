@@ -21,7 +21,10 @@ from hamcrest import less_than_or_equal_to
 from nti.testing.matchers import validly_provides
 
 import unittest
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 from nti.zodb import interfaces
 from nti.zodb.minmax import Maximum
