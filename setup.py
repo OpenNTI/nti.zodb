@@ -21,7 +21,7 @@ def _read(fname):
         return f.read()
 
 setup(
-    name='nti.base',
+    name='nti.zodb',
     version=_read('version.txt').strip(),
     author='Jason Madden',
     author_email='jason@nextthought.com',
