@@ -4,7 +4,7 @@
 .. $Id$
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -16,11 +16,11 @@ import struct
 # standard, which may matter between 32 and 64 bit machines
 # q is 64-bit long int, d is 64-bit double
 
-_float_to_double_bits = struct.Struct(b'!d').pack
-_double_bits_to_long = struct.Struct(b'!q').unpack
+_float_to_double_bits = struct.Struct('!d').pack
+_double_bits_to_long = struct.Struct('!q').unpack
 
-_long_to_double_bits = struct.Struct(b'!q').pack
-_double_bits_to_float = struct.Struct(b'!d').unpack
+_long_to_double_bits = struct.Struct('!q').pack
+_double_bits_to_float = struct.Struct('!d').unpack
 
 
 def time_to_64bit_int(value):

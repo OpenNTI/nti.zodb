@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -37,10 +37,10 @@ class TestZlibStorage(unittest.TestCase):
 
         _, _, kw, factory = ZlibStorageClientStorageURIResolver()(uri)
 
-        assert_that(kw, is_({'blob_dir': u'/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs',
+        assert_that(kw, is_({'blob_dir': '/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs',
                              'cache_size': 104857600,
                              'shared_blob_dir': 1,
-                             'storage': u'1'}))
+                             'storage': '1'}))
         assert_that(factory, has_property('__name__', 'zlibfactory'))
 
         fudge_cstor.is_callable().returns_fake().is_a_stub()

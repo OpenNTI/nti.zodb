@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -29,13 +29,13 @@ class TestPersistentProperty(unittest.TestCase):
     def test_that_if_superclass_created_first_subclass_cache_is_correct(self):
 
         class BaseWithProperty(PersistentPropertyHolder):
-            a = NumericPropertyDefaultingToZero(b'a',
+            a = NumericPropertyDefaultingToZero('a',
                                                 NumericMaximum,
                                                 as_number=True)
-            b = NumericPropertyDefaultingToZero(b'b', MergingCounter)
+            b = NumericPropertyDefaultingToZero('b', MergingCounter)
 
         class DerivedWithProperty(BaseWithProperty):
-            c = NumericPropertyDefaultingToZero(b'c', NumericMinimum)
+            c = NumericPropertyDefaultingToZero('c', NumericMinimum)
 
         base = BaseWithProperty()
         assert_that(base._v_persistentpropertyholder_cache.keys(),
