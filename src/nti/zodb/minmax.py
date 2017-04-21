@@ -19,8 +19,6 @@ from zope.minmax._minmax import Maximum
 from zope.minmax._minmax import Minimum
 from zope.minmax._minmax import AbstractValue
 
-from nti.zodb._compat import text_
-
 from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
 
@@ -211,7 +209,9 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
         """
         if not isinstance(name, (str, bytes)):  # force native string
             raise ValueError("name must be native string")
-        self.__name__ = text_(name)
+        if not isinstance(name, bytes): 
+            name = name.decode("utf-8")
+        self.__name__ = name
         self.factory = factory
         if as_number:
             self.as_number = True

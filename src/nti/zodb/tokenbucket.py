@@ -15,7 +15,12 @@ from time import time
 
 from zope import interface
 
-from nti.zodb._compat import sleep
+try:
+    from gevent import sleep
+except ImportError:
+    from time import sleep
+
+sleep = sleep  # pylint
 
 from nti.zodb.interfaces import ITokenBucket
 
