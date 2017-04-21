@@ -20,8 +20,6 @@ try:
 except ImportError:
     from time import sleep
 
-sleep = sleep  # pylint
-
 from nti.zodb.interfaces import ITokenBucket
 
 from nti.zodb.minmax import NumericMaximum
