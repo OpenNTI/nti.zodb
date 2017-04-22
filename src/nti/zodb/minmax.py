@@ -257,7 +257,6 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
             self.__changed(inst)
             if getattr(inst, '_p_jar', None) is not None:
                 inst._p_jar.add(val)
-
         else:
             val.set(value)
 
