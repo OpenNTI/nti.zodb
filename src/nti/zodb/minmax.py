@@ -19,6 +19,8 @@ from zope.minmax._minmax import Maximum
 from zope.minmax._minmax import Minimum
 from zope.minmax._minmax import AbstractValue
 
+from ZODB.interfaces import IConnection
+
 from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
 
@@ -257,8 +259,9 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
             val = self.factory(value)
             inst.__dict__[self.__name__] = val
             self.__changed(inst)
-            if getattr(inst, '_p_jar', None) is not None:
-                inst._p_jar.add(val)
+            connection = IConnection(inst, None)
+            if connection is not None:
+                connection.add(val)
         else:
             val.set(value)
 
