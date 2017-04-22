@@ -207,7 +207,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
                 want to access its ``.value`` attribute. Setting this property always
                 takes the (raw) numeric value.
         """
-        if not isinstance(name, (str, bytes)):  # force native string
+        if not isinstance(name, str):  # force native string
             raise ValueError("name must be native string")
         self.__name__ = name
         self.factory = factory
