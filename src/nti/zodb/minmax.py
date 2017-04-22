@@ -209,7 +209,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
         """
         if not isinstance(name, (str, bytes)):  # force native string
             raise ValueError("name must be native string")
-        if not isinstance(name, bytes): 
+        if isinstance(name, bytes): 
             name = name.decode("utf-8")
         self.__name__ = name
         self.factory = factory
