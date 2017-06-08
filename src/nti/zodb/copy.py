@@ -3,8 +3,9 @@
 """
 Things to assist with copying persistent objects.
 
-.. $Id$
 """
+
+# XXX: This module is badly named, it shadows a stdlib module.
 
 from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"

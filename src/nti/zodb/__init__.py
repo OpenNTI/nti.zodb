@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-.. $Id$
+Common helpers.
 """
 
 from __future__ import print_function, absolute_import, division
@@ -13,7 +13,6 @@ logger = __import__('logging').getLogger(__name__)
 
 from ZODB.interfaces import IBroken
 
-from ZODB.POSException import POSError
 from ZODB.POSException import POSKeyError
 
 
@@ -45,20 +44,34 @@ def readCurrent(obj, container=True):
 
 
 def isBroken(obj, uid=None):
-    result = False
+    """
+    Check if the object is broken (missing or an implementation of
+    :class:`ZODB.interfaces.IBroken`).
+
+    :keyword str uid: A debugging aid, unless the obj is none,
+      in which case it must be non-None to result in a True return.
+      This makes no sense, so try to avoid passing objects that are None
+      to this function.
+    """
+    if obj is None:
+        msg = uid if uid is not None else ''
+        logger.debug("Ignoring NULL object %s", msg)
+        return uid is not None
+
+
     try:
-        if obj is None:
-            msg = uid if uid is not None else ''
-            logger.warn("Ignoring NULL object %s", msg)
-            result = (uid is not None)
-        else:
-            try:
-                obj._p_activate()
-            except (TypeError, AttributeError):
-                pass
-            result = IBroken.providedBy(obj)
-    except (POSError, TypeError):
-        logger.error("Ignoring broken object %s, %s", type(obj), uid)
-        result = True
-    return result
+        try:
+            obj._p_activate()
+        except (TypeError, AttributeError):
+            pass
+        return IBroken.providedBy(obj)
+    except (POSKeyError, TypeError):
+        # XXX: How can TypeError be raised by IBroken.providedBy?
+        # Note that we only catch POSKeyError---anything else, like
+        # KeyError or POSError, would be a lie. In particular, StorageError
+        # is a type of POSError, which would indicate connection problems to the
+        # ZODB, *not* a broken object.
+        logger.debug("Ignoring broken object %s, %s", type(obj), uid)
+        return True
+
 is_broken = isBroken

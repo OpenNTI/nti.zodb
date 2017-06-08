@@ -3,7 +3,6 @@
 """
 Interfaces for objects defined in the ZODB package.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -104,18 +103,20 @@ class INumericCounter(INumericValue):
 from ZODB.POSException import StorageError
 
 
-class ZODBUnableToAcquireCommitLock(StorageError):
+class UnableToAcquireCommitLock(StorageError):
     """
     A ZODB storage (typically RelStorage) was unable
     to acquire the required commit lock.
 
-    Expect this actual class to be temporary, replaced with
-    a BWC import when RelStorage accepts a patch to include
-    the functionality directly.
+    This class is only used if RelStorage is not available; otherwise
+    it is an alias for
+    ``relstorage.adapters.interfaces.UnableToAcquireCommitLock``.
     """
 
 try:
     from relstorage.adapters.interfaces import UnableToAcquireCommitLockError
-    UnableToAcquireCommitLock = UnableToAcquireCommitLockError  # alias
+    UnableToAcquireCommitLock = UnableToAcquireCommitLockError  # alias pragma: no cover
 except ImportError:
-    UnableToAcquireCommitLock = ZODBUnableToAcquireCommitLock
+    pass
+
+ZODBUnableToAcquireCommitLock = UnableToAcquireCommitLock # BWC

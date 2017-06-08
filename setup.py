@@ -1,12 +1,9 @@
 import codecs
 from setuptools import setup, find_packages
 
-entry_points = {
-    'console_scripts': [
-    ],
-}
 
 TESTS_REQUIRE = [
+    'BTrees',
     'nti.testing',
     'zope.testrunner',
 ]
@@ -16,13 +13,12 @@ def _read(fname):
     with codecs.open(fname, encoding='utf-8') as f:
         return f.read()
 
-
 setup(
     name='nti.zodb',
     version=_read('version.txt').strip(),
     author='Jason Madden',
     author_email='jason@nextthought.com',
-    description="NTI ZODB",
+    description="Utilities for ZODB",
     long_description=(_read('README.rst') + '\n\n' + _read('CHANGES.rst')),
     license='Apache',
     keywords='ZODB',
@@ -30,6 +26,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
+        "Framework :: ZODB",
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -45,8 +42,9 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
-        'BTrees',
+        'nti.property', # BWC exports
         'nti.schema',
+        'nti.wref',
         'perfmetrics',
         'persistent',
         'repoze.zodbconn',
@@ -59,11 +57,9 @@ setup(
         'zope.interface',
         'zope.minmax',
         'zope.processlifetime',
-        'zope.security'
+        'zope.security',
     ],
     extras_require={
         'test': TESTS_REQUIRE,
     },
-    entry_points=entry_points,
-    test_suite="nti.zodb.tests",
 )

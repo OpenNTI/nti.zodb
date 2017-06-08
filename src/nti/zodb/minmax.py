@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Conflict resolving value/counter implementations
+Conflict resolving value/counter implementations for use on persistent objects.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -22,10 +21,10 @@ from zope.minmax._minmax import AbstractValue
 from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
 
+from six import integer_types
+
 # Give all these things a 'set' method, a point for subclasses
 # to potentially override
-
-
 def _set(self, value):
     self.value = value
 # catch incompatible changes
@@ -163,8 +162,16 @@ from nti.zodb.persistentproperty import PropertyHoldingPersistent
 
 class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
     """
-    In persistent objects (that extend :class:`nti.zodb.persistentproperty.PersistentPropertyHolder`),
+    In persistent objects (that extend
+    :class:`nti.zodb.persistentproperty.PersistentPropertyHolder`),
     use this to hold a merging counter or numeric minimum or maximum.
+
+    This is a data descriptor::
+
+        class Foo(PersistentPropertyHolder):
+
+           a = NumericPropertyDefaultingToZero('a')
+
     """
 
     @interface.implementer(INumericCounter)
@@ -194,11 +201,11 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
         Creates a new property in a new-style class that does not use ``__slots__``
         (persistent classes shouldn't use ``__slots__`` anyway).
 
-        :param name: The name of the property; this will be the key in the instance
+        :param str name: The name of the property; this will be the key in the instance
                 dictionary. This should match the name of the property
                 (e.g., ``a = NumericPropertyDefaultingToZero( 'a',...)``) but is not required
                 to. It must be a native string (bytes on py2, str/unicode on py3).
-        :param factory: The value object factory that determines the type of
+        :param callable factory: The value object factory that determines the type of
                 conflict resolution used for this property. Typically :func:`NumericMaximum`,
                 :class:`NumericMinimum` or :class:`MergingCounter`.
         :keyword bool as_number: If set to `True` (not the default), then
@@ -207,8 +214,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
                 want to access its ``.value`` attribute. Setting this property always
                 takes the (raw) numeric value.
         """
-        if not isinstance(name, str):  # force native string
-            raise ValueError("name must be native string")
+        assert isinstance(name, str), "name must be native string"
         self.__name__ = name
         self.factory = factory
         if as_number:
@@ -248,7 +254,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
     def __set__(self, inst, value):
         self.__activate(inst)
         val = inst.__dict__.get(self.__name__, None)
-        if val is None or isinstance(val, int):
+        if val is None or isinstance(val, integer_types):
             if not value:
                 # not in dict, but they gave us the default value, so ignore it
                 return

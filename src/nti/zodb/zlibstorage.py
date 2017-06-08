@@ -3,7 +3,8 @@
 """
 Utilities for working with zc.zlibstorage.
 
-.. $Id$
+TODO: Add support for zodburi, which can be installed automatically
+as entry points in setup.py.
 """
 
 from __future__ import print_function, absolute_import, division
@@ -14,8 +15,6 @@ logger = __import__('logging').getLogger(__name__)
 import os
 
 from repoze.zodbconn import resolvers
-
-from nti.zodb.common import make_cache_dir
 
 
 class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
@@ -46,16 +45,13 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
 
             # Delay setting the client name until the very end so whatever is going to
             # set environment variables will have done so.
-            if 'var' not in storage_kw:
-                storage_kw['var'] = make_cache_dir('zeo')
             if 'client' not in storage_kw:
                 name = os.environ.get("DATASERVER_ZEO_CLIENT_NAME")
-                if name:
+                if name: # pragma: no cover This isn't documented.
                     # storage name is automatically part of it
                     storage_kw['client'] = name
-            if 'cache_size' not in storage_kw:
-                # ClientCache docs say 200MB is good
-                storage_kw['cache_size'] = 200 * 1024 * 1024
+            # ClientCache docs say 200MB is good
+            storage_kw.setdefault('cache_size', 200 * 1024 * 1024)
 
             # Client storage is very picky: a Unix path must be bytes, not
             # unicode
@@ -70,6 +66,10 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
 
 
 class ZlibStorageFileStorageURIResolver(resolvers.FileStorageURIResolver):
+    """
+    Wraps :class:`ZODB.FileStorage.FileStorage` with zc.zlibstorage
+    when using the ``zlibfile`` URI scheme.
+    """
 
     def __call__(self, uri):
         from zc.zlibstorage import ZlibStorage
@@ -91,7 +91,9 @@ def install_zlib_client_resolver():
     """
     Makes it possible for :func:`repoze.zodbconn.uri.db_from_uri` to connect
     to ZEO servers that are using zlib storage, through providing support for the
-    use of the ``zlibzeo`` URI scheme, and likewise for zlibfile://
+    use of the ``zlibzeo`` URI scheme, and likewise for ``zlibfile://``.
+
+    Alternatively, you can use a ZConfig file and the zconfig:// URI scheme.
     """
     # The alternative to all this is to use a ZConfig file and ZConfig URI.
     resolvers.RESOLVERS['zlibfile'] = ZlibStorageFileStorageURIResolver()

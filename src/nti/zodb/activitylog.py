@@ -7,7 +7,6 @@ Logging of database connection activity. Activate this with ZCML::
 
 Originally based on code from the unreleased zc.zodbactivitylog.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -16,7 +15,9 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 
-class _AbstractActivityMonitor(object):
+from perfmetrics import statsd_client
+
+class AbstractActivityMonitor(object):
     """
     Base monitor for dealing correctly with chains.
     """
@@ -41,7 +42,7 @@ class _AbstractActivityMonitor(object):
         return getattr(self._base, name)
 
 
-class LogActivityMonitor(_AbstractActivityMonitor):
+class LogActivityMonitor(AbstractActivityMonitor):
     """
     ZODB database activity monitor that logs connection transfer information.
     """
@@ -50,19 +51,17 @@ class LogActivityMonitor(_AbstractActivityMonitor):
         logger.info("closedConnection={'loads': %5d, 'stores': %5d, 'database': %s}",
                     loads, stores, db_name)
 
-try:
-    from perfmetrics import statsd_client
-except ImportError:
-    statsd_client = lambda *args, **kwargs: None
 
+class StatsdActivityMonitor(AbstractActivityMonitor):
+    """
+    ZODB database activity monitor that stores counters in statsd.
+    Experimental.
+    """
 
-class StatsdActivityMonitor(_AbstractActivityMonitor):
-    """
-    ZODB database activity monitor that stores counters in statsd. Experimental.
-    """
+    statsd_client = staticmethod(statsd_client)
 
     def _closedConnection(self, loads, stores, db_name):
-        statsd = statsd_client()
+        statsd = self.statsd_client()
         if statsd is None:
             return
 
