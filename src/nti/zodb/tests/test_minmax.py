@@ -4,8 +4,7 @@
 from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
-# disable: accessing protected members, too many methods
-# pylint: disable=W0212,R0904
+# pylint: disable=protected-access
 
 from hamcrest import is_
 from hamcrest import raises
@@ -21,10 +20,7 @@ from hamcrest import less_than_or_equal_to
 from nti.testing.matchers import validly_provides
 
 import unittest
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import pickle
 
 from nti.zodb import interfaces
 from nti.zodb.minmax import Maximum
@@ -39,8 +35,6 @@ from nti.zodb.tests import SharedConfiguringTestLayer
 
 
 class TestMinMax(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     def test_zope_imports_have_set(self):
         for t in Minimum, Maximum:
@@ -130,26 +124,71 @@ from nti.zodb.persistentproperty import PersistentPropertyHolder
 
 from ZODB import DB
 
-
 class WithProperty(PersistentPropertyHolder):
 
     a = NumericPropertyDefaultingToZero(
-        str('a'),
+        'a',
         NumericMaximum,
         as_number=True)
-    b = NumericPropertyDefaultingToZero(str('b'), MergingCounter)
+    b = NumericPropertyDefaultingToZero('b', MergingCounter)
+
+class NPProperty(object):
+    a = NumericPropertyDefaultingToZero(
+        'a',
+        NumericMaximum,
+        as_number=True)
+    b = NumericPropertyDefaultingToZero('b', MergingCounter)
 
 
-class TestProperty(unittest.TestCase):
+class TestPropertyNonPersistent(unittest.TestCase):
 
-    layer = SharedConfiguringTestLayer
+    def make_one(self):
+        obj = NPProperty()
+        return obj
 
-    def test_zero_property_increment(self):
+    def test_all_works(self):
+        obj = self.make_one()
+
+        assert_that(obj.a, is_(0))
+
+        del obj.a
+        assert_that(obj.a, is_(0))
+
+        obj.a = 0
+        assert_that(obj.a, is_(0))
+        self.assertNotIn('a', obj.__dict__)
+
+        obj.a = 1
+        assert_that(obj.a, is_(1))
+
+        obj.a = 2
+        assert_that(obj.a, is_(2))
+
+        del obj.a
+        assert_that(obj.a, is_(0))
+
+        assert_that(obj.b, is_(type(ConstantZeroValue())))
+
+        # No change
+        obj.b.set(0)
+        assert_that(obj.b, is_(type(ConstantZeroValue())))
+
+
+class TestProperty(TestPropertyNonPersistent):
+
+    def make_one(self):
         db = DB(None)
         conn = db.open()
 
         obj = WithProperty()
         conn.add(obj)
+        return obj
+
+    def test_get_klass(self):
+        assert_that(WithProperty.a, is_(NumericPropertyDefaultingToZero))
+
+    def test_zero_property_increment(self):
+        obj = self.make_one()
 
         assert_that(obj._p_status, is_('saved'))
 
@@ -170,11 +209,7 @@ class TestProperty(unittest.TestCase):
         assert_that(obj.b, is_(MergingCounter))
 
     def test_zero_property_set(self):
-        db = DB(None)
-        conn = db.open()
-
-        obj = WithProperty()
-        conn.add(obj)
+        obj = self.make_one()
 
         assert_that(obj._p_status, is_('saved'))
 
@@ -195,11 +230,7 @@ class TestProperty(unittest.TestCase):
         assert_that(obj.b.value, is_(3))
 
     def test_zero_property_value(self):
-        db = DB(None)
-        conn = db.open()
-
-        obj = WithProperty()
-        conn.add(obj)
+        obj = self.make_one()
 
         assert_that(obj._p_status, is_('saved'))
 

@@ -115,7 +115,7 @@ class UnableToAcquireCommitLock(StorageError):
 
 try:
     from relstorage.adapters.interfaces import UnableToAcquireCommitLockError
-    UnableToAcquireCommitLock = UnableToAcquireCommitLockError  # alias
+    UnableToAcquireCommitLock = UnableToAcquireCommitLockError  # alias pragma: no cover
 except ImportError:
     pass
 
