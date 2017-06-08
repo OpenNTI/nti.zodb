@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Utilities for working with zc.zlibstorage.
+
+TODO: Add support for zodburi, which can be installed automatically
+as entry points in setup.py.
 """
 
 from __future__ import print_function, absolute_import, division
@@ -44,12 +47,11 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
             # set environment variables will have done so.
             if 'client' not in storage_kw:
                 name = os.environ.get("DATASERVER_ZEO_CLIENT_NAME")
-                if name:
+                if name: # pragma: no cover This isn't documented.
                     # storage name is automatically part of it
                     storage_kw['client'] = name
-            if 'cache_size' not in storage_kw:
-                # ClientCache docs say 200MB is good
-                storage_kw['cache_size'] = 200 * 1024 * 1024
+            # ClientCache docs say 200MB is good
+            storage_kw.setdefault('cache_size', 200 * 1024 * 1024)
 
             # Client storage is very picky: a Unix path must be bytes, not
             # unicode

@@ -106,3 +106,13 @@ class TestIsBroken(unittest.TestCase):
         # other exceptions are passed
         o.raises = KeyError
         self.assertRaises(KeyError, isBroken, o)
+
+class TestBWCImports(unittest.TestCase):
+
+    def test_urlproperty(self):
+        import nti.zodb.urlproperty
+        assert_that(nti.zodb.urlproperty, has_property('UrlProperty'))
+
+    def test_schema(self):
+        import nti.zodb.schema
+        assert_that(nti.zodb.schema, has_property('Number'))

@@ -41,6 +41,7 @@ setup(
     install_requires=[
         'setuptools',
         'BTrees',
+        'nti.property', # BWC exports
         'nti.schema',
         'nti.wref',
         'perfmetrics',
