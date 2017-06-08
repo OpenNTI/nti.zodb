@@ -31,8 +31,6 @@ from nti.zodb.minmax import NumericMinimum
 from nti.zodb.minmax import ConstantZeroValue
 from nti.zodb.minmax import NumericPropertyDefaultingToZero
 
-from nti.zodb.tests import SharedConfiguringTestLayer
-
 
 class TestMinMax(unittest.TestCase):
 
