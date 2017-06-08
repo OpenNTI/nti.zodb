@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 
 
 TESTS_REQUIRE = [
+    'BTrees',
     'nti.testing',
     'zope.testrunner',
 ]
@@ -25,6 +26,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
+        "Framework :: ZODB",
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -40,7 +42,6 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
-        'BTrees',
         'nti.property', # BWC exports
         'nti.schema',
         'nti.wref',
