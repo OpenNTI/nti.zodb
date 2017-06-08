@@ -42,6 +42,7 @@ setup(
         'setuptools',
         'BTrees',
         'nti.schema',
+        'nti.wref',
         'perfmetrics',
         'persistent',
         'repoze.zodbconn',

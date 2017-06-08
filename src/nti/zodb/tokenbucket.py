@@ -3,7 +3,6 @@
 """
 Implementations of the token bucket algorithm.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -35,6 +34,9 @@ class PersistentTokenBucket(object):
 
     Initially based on `an ActiveState recipe
     <http://code.activestate.com/recipes/511490-implementation-of-the-token-bucket-algorithm/>`_
+
+    (For efficiency, this object itself isn't persistent, but the
+    objects it holds are.)
     """
 
     def __init__(self, capacity, fill_rate=1.0):
@@ -93,6 +95,6 @@ class PersistentTokenBucket(object):
         return self._tokens.value
 
     def __repr__(self):
-        return "%s(%s,%s)" % (type(self).__name__, 
-                              self.capacity, 
+        return "%s(%s,%s)" % (type(self).__name__,
+                              self.capacity,
                               self.fill_rate)

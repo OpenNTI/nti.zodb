@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-.. $Id$
+Utilities for working with containers, particularly BTree containers.
 """
 
 from __future__ import print_function, absolute_import, division
@@ -26,7 +26,7 @@ _double_bits_to_float = struct.Struct('!d').unpack
 def time_to_64bit_int(value):
     """
     Given a Python floating point object (usually a time value),
-    return a 64-bit long int that represents it. Useful for
+    losslessly return a 64-bit long int that represents it. Useful for
     storing as the value in a OL tree, when you really want a float
     (since BTrees does not provide OF), or as a key in a Lx tree.
     """
@@ -40,6 +40,11 @@ ZERO_64BIT_INT = time_to_64bit_int(0.0)
 
 
 def bit64_int_to_time(value):
+    """
+    Convert a 64 bit integer to its floating point value.
+
+    Inverse of :func:`time_to_64bit_int`.
+    """
     return _double_bits_to_float(_long_to_double_bits(value))[0]
 
 assert bit64_int_to_time(ZERO_64BIT_INT) == 0.0

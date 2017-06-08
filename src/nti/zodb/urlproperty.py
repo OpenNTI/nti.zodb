@@ -3,7 +3,8 @@
 """
 Classes and utilities for working with URLs stored on persistent objects.
 
-.. $Id$
+Deprecated, do not use.
+
 """
 
 from __future__ import print_function, absolute_import, division

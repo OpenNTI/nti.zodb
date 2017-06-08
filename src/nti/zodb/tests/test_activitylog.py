@@ -12,14 +12,12 @@ from hamcrest import has_property
 
 import unittest
 
-from nti.zodb.activitylog import _AbstractActivityMonitor as ActivityMonitor
+from nti.zodb.activitylog import AbstractActivityMonitor as ActivityMonitor
 
 from nti.zodb.tests import SharedConfiguringTestLayer
 
 
 class TestBase(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     def test_base(self):
 
