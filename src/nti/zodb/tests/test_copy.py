@@ -30,8 +30,9 @@ class TestCopyWref(unittest.TestCase):
 
     def test_copy(self):
         # When not configured, can't copy the connection
+        import pickle
         orig_wref = self.make_one()
-        self.assertRaises(TypeError, copy.copy, orig_wref)
+        self.assertRaises(Exception, copy.copy, orig_wref)
 
 class TestCopyFactory(TestCopyWref):
 
