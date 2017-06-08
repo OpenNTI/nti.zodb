@@ -7,6 +7,11 @@ Interfaces
 
 .. automodule:: nti.zodb.interfaces
 
+Utilities
+=========
+
+.. automodule:: nti.zodb
+
 Activity Log
 ============
 
