@@ -14,6 +14,7 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+
 from perfmetrics import statsd_client
 
 class AbstractActivityMonitor(object):
@@ -57,8 +58,10 @@ class StatsdActivityMonitor(AbstractActivityMonitor):
     Experimental.
     """
 
+    statsd_client = staticmethod(statsd_client)
+
     def _closedConnection(self, loads, stores, db_name):
-        statsd = statsd_client()
+        statsd = self.statsd_client()
         if statsd is None:
             return
 
