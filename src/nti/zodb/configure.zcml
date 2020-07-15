@@ -7,7 +7,7 @@
 	<include package="zope.security" file="meta.zcml" />
 	<include package="zope.component" />
 	<include package="zope.security" />
-	
+
 	<include package="zope.copypastemove" />
 
 	<adapter factory=".copy.wref_copy_factory" />
@@ -19,9 +19,5 @@
 		<implements interface="zope.interface.common.mapping.IFullMapping" />
 	</class>
 
-	<!-- Marke PersistentList as an ISequence -->
-	<class class="persistent.list.PersistentList">
-		<implements interface="zope.interface.common.sequence.ISequence" />
-	</class>
 
 </configure>
