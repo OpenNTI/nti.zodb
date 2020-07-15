@@ -6,6 +6,8 @@ TESTS_REQUIRE = [
     'BTrees',
     'nti.testing',
     'zope.testrunner',
+    'fudge',
+    'coverage',
 ]
 
 
@@ -15,7 +17,7 @@ def _read(fname):
 
 setup(
     name='nti.zodb',
-    version=_read('version.txt').strip(),
+    version='1.1.0.dev0',
     author='Jason Madden',
     author_email='jason@nextthought.com',
     description="Utilities for ZODB",
@@ -31,6 +33,8 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
@@ -62,5 +66,10 @@ setup(
     ],
     extras_require={
         'test': TESTS_REQUIRE,
+        'docs': [
+            'Sphinx',
+            'repoze.sphinx.autointerface',
+            'sphinx_rtd_theme',
+        ]
     },
 )
