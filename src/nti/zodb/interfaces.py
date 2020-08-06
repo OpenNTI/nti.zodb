@@ -65,6 +65,9 @@ class INumericValue(IAbstractValue):
     def set(value):
         """
         Change the value of this object to the given value.
+
+        If the number is immutable, and the value is not the current value,
+        this may raise :exc:`NotImplementedError`.
         """
 
     def __eq__(other):
@@ -75,6 +78,9 @@ class INumericValue(IAbstractValue):
     def __hash__():
         """
         This object hashes like its value.
+
+        .. caution::
+           Do not place this object in a hash container and then mutate the value.
         """
 
     def __lt__(other):
@@ -87,6 +93,12 @@ class INumericValue(IAbstractValue):
         These values are ordered like their values.
         """
 
+    def increment(amount=1):
+        """
+        Increment the value by the specified amount (which should be non-negative).
+
+        :return: The counter with the incremented value (this object).
+        """
 
 class INumericCounter(INumericValue):
     """
@@ -95,14 +107,6 @@ class INumericCounter(INumericValue):
     changes. Intended to be used for monotonically increasing
     counters, typically integers.
     """
-
-    def increment(amount=1):
-        """
-        Increment the value by the specified amount (which must be non-negative).
-
-        :return: The counter with the incremented value.
-        """
-
 
 
 class UnableToAcquireCommitLock(StorageError):

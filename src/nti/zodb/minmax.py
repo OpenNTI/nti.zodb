@@ -8,8 +8,6 @@ Conflict resolving value/counter implementations for use on persistent objects.
 from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
-logger = __import__('logging').getLogger(__name__)
-
 import functools
 
 from zope import interface
@@ -20,6 +18,7 @@ from zope.minmax._minmax import AbstractValue
 
 from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
+from nti.zodb.persistentproperty import PropertyHoldingPersistent
 
 from six import integer_types
 
@@ -34,7 +33,7 @@ AbstractValue.set = _set
 
 @functools.total_ordering
 @interface.implementer(INumericValue)
-class AbstractNumericValue(AbstractValue):
+class AbstractNumericValue(AbstractValue): # pylint:disable=abstract-method
     """
     A numeric value that provides ordering operations.
     Defaults to zero.
@@ -43,6 +42,10 @@ class AbstractNumericValue(AbstractValue):
 
     def __init__(self, value=0):
         super(AbstractNumericValue, self).__init__(value)
+
+    def increment(self, amount=1):
+        self.set(self.value + amount)
+        return self
 
     # Comparison methods
     def __eq__(self, other):
@@ -109,7 +112,7 @@ class _ConstantZeroValue(AbstractNumericValue):
     def __getstate__(self):
         raise TypeError()
 
-    def _p_resolveConflict(self, old, committed, new):
+    def _p_resolveConflict(self, old, committed, new): # pylint:disable=arguments-differ
         raise NotImplementedError()
 
     def set(self, value):
@@ -117,10 +120,15 @@ class _ConstantZeroValue(AbstractNumericValue):
 
     value = property(lambda s: 0, lambda s, nv: None)
 
+    def increment(self, amount=1):
+        raise NotImplementedError
+
 _czv = _ConstantZeroValue()
 
 
-def ConstantZeroValue():
+def ConstantZeroValue(value=0):
+    if value != 0:
+        raise NotImplementedError
     return _czv
 ConstantZeroValue.__doc__ = _ConstantZeroValue.__doc__
 
@@ -144,6 +152,13 @@ class MergingCounter(AbstractNumericValue):
     A :mod:`zope.minmax` item that resolves conflicts by
     merging the numeric value of the difference in magnitude of changes.
     Intented to be used for monotonically increasing counters.
+
+    As a special case, if the counter is reset to zero by both transactions,
+    that becomes the new state.
+
+    .. versionchanged:: 1.2.0
+       Special case setting the counter to zero.
+
     """
 
     def increment(self, amount=1):
@@ -151,13 +166,14 @@ class MergingCounter(AbstractNumericValue):
         self.value += amount
         return self
 
-    def _p_resolveConflict(self, oldState, savedState, newState):
+    def _p_resolveConflict(self, oldState, savedState, newState):  # pylint:disable=arguments-differ
+        if savedState == newState == 0:
+            return 0
+
         saveDiff = savedState - oldState
         newDiff = newState - oldState
         savedState = oldState + saveDiff + newDiff
         return savedState
-
-from nti.zodb.persistentproperty import PropertyHoldingPersistent
 
 
 class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
@@ -194,6 +210,9 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
                 return
             self.prop.__set__(self.holder, value)
 
+        def _p_resolveConflict(self, *args):
+            raise NotImplementedError
+
     as_number = False
 
     def __init__(self, name, factory, as_number=False):
@@ -225,7 +244,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
         we must activate objects before accessing their dict otherwise it may not be loaded
         """
         try:
-            inst._p_activate()
+            inst._p_activate() # pylint:disable=protected-access
         except AttributeError:
             pass
 
@@ -233,6 +252,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
         # sometimes instances are not actually persistent,
         # don't give them a _p_changed
         try:
+            # pylint:disable=protected-access
             if not inst._p_changed:
                 inst._p_changed = True
         except AttributeError:
