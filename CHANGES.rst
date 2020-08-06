@@ -3,7 +3,7 @@
 =========
 
 
-1.2.0 (unreleased)
+1.2.0 (2020-08-06)
 ==================
 
 - Add a BTree "family" object to ``nti.zodb.btrees`` that uses larger
