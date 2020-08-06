@@ -13,6 +13,10 @@
   the ``increment`` method. See `issue 7
   <https://github.com/NextThought/nti.zodb/issues/7>`_.
 
+- The merging counter does the right thing when reset to zero by two
+  conflicting transactions. See `issue 6
+  <https://github.com/NextThought/nti.zodb/issues/6>`_.
+
 1.1.0 (2020-07-15)
 ==================
 

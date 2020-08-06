@@ -97,10 +97,13 @@ class TestMergingCounter(NumericValueMixin,
                     validly_provides(interfaces.INumericCounter))
 
     def test_merge_resolve(self):
-        assert_that(MergingCounter()._p_resolveConflict(0, 0, 1), is_(1))
+        # (original state, currently committed, desired)
+        mc = self._makeOne()
+        assert_that(mc._p_resolveConflict(0, 0, 1), is_(1))
         # simultaneous increment adds
-        assert_that(MergingCounter()._p_resolveConflict(0, 1, 1), is_(2))
-
+        assert_that(mc._p_resolveConflict(0, 1, 1), is_(2))
+        # In the special case that both set it to zero, it becomes 0
+        assert_that(mc._p_resolveConflict(10, 0, 0), is_(0))
 
     def test_str(self):
 

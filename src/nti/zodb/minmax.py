@@ -152,6 +152,13 @@ class MergingCounter(AbstractNumericValue):
     A :mod:`zope.minmax` item that resolves conflicts by
     merging the numeric value of the difference in magnitude of changes.
     Intented to be used for monotonically increasing counters.
+
+    As a special case, if the counter is reset to zero by both transactions,
+    that becomes the new state.
+
+    .. versionchanged:: 1.2.0
+       Special case setting the counter to zero.
+
     """
 
     def increment(self, amount=1):
@@ -160,6 +167,9 @@ class MergingCounter(AbstractNumericValue):
         return self
 
     def _p_resolveConflict(self, oldState, savedState, newState):  # pylint:disable=arguments-differ
+        if savedState == newState == 0:
+            return 0
+
         saveDiff = savedState - oldState
         newDiff = newState - oldState
         savedState = oldState + saveDiff + newDiff
