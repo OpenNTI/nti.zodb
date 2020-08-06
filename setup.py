@@ -3,7 +3,6 @@ from setuptools import setup, find_packages
 
 
 TESTS_REQUIRE = [
-    'BTrees',
     'nti.testing',
     'zope.testrunner',
     'fudge',
@@ -55,6 +54,9 @@ setup(
         'repoze.zodbconn',
         'zc.zlibstorage',
         'ZODB',
+        # BTrees is a dependency of ZODB, but we use it directly here,
+        # and want to make sure we have a decent version.
+        'BTrees >= 4.7.2',
         'zope.component',
         'zope.copy',
         'zope.copypastemove',

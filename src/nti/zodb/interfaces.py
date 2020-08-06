@@ -12,9 +12,12 @@ from zope import schema
 from zope import interface
 
 from zope.minmax.interfaces import IAbstractValue
+from ZODB.POSException import StorageError
 
 from nti.schema.field import Number
 
+# pylint:disable=inherit-non-class,no-self-argument,no-method-argument
+# pylint:disable=unexpected-special-method-signature
 
 class ITokenBucket(interface.Interface):
     """
@@ -100,7 +103,6 @@ class INumericCounter(INumericValue):
         :return: The counter with the incremented value.
         """
 
-from ZODB.POSException import StorageError
 
 
 class UnableToAcquireCommitLock(StorageError):
@@ -114,9 +116,10 @@ class UnableToAcquireCommitLock(StorageError):
     """
 
 try:
-    from relstorage.adapters.interfaces import UnableToAcquireCommitLockError
-    UnableToAcquireCommitLock = UnableToAcquireCommitLockError  # alias pragma: no cover
+    from relstorage.adapters import interfaces
 except ImportError:
     pass
+else:
+    UnableToAcquireCommitLock = interfaces.UnableToAcquireCommitLockError  # alias pragma: no cover
 
 ZODBUnableToAcquireCommitLock = UnableToAcquireCommitLock # BWC

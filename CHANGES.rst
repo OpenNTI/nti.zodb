@@ -3,10 +3,11 @@
 =========
 
 
-1.1.1 (unreleased)
+1.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add a BTree "family" object to ``nti.zodb.btrees`` that uses larger
+  bucket sizes. See `issue 8 <https://github.com/NextThought/nti.zodb/issues/8>`_.
 
 
 1.1.0 (2020-07-15)
