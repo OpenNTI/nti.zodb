@@ -6,6 +6,9 @@ __docformat__ = "restructuredtext en"
 
 # pylint: disable=protected-access
 
+import unittest
+import pickle
+
 from hamcrest import is_
 from hamcrest import raises
 from hamcrest import has_key
@@ -18,9 +21,7 @@ from hamcrest import same_instance
 from hamcrest import less_than_or_equal_to
 
 from nti.testing.matchers import validly_provides
-
-import unittest
-import pickle
+from nti.testing.matchers import verifiably_provides
 
 from nti.zodb import interfaces
 from nti.zodb.minmax import Maximum
@@ -30,24 +31,37 @@ from nti.zodb.minmax import NumericMaximum
 from nti.zodb.minmax import NumericMinimum
 from nti.zodb.minmax import ConstantZeroValue
 from nti.zodb.minmax import NumericPropertyDefaultingToZero
+from nti.zodb.persistentproperty import PersistentPropertyHolder
+
+from ZODB import DB
 
 
-class TestMinMax(unittest.TestCase):
-
+class TestModule(unittest.TestCase):
     def test_zope_imports_have_set(self):
         for t in Minimum, Maximum:
             v = t(0)
             v.set(1)
             assert_that(v.value, is_(1))
 
+class NumericValueMixin(object):
+
+    def _makeOne(self, *args):
+        raise NotImplementedError
+
+    def test_numeric_value_interface(self):
+        val = self._makeOne()
+        assert_that(val, verifiably_provides(interfaces.INumericValue))
+
     def test_comparisons(self):
-        mc1 = MergingCounter()
-        mc2 = MergingCounter()
+        mc1 = self._makeOne()
+        mc2 = self._makeOne()
 
         assert_that(mc1, is_(mc2))
-        assert_that(mc1, validly_provides(interfaces.INumericCounter))
 
-        mc2.increment()
+        try:
+            mc2.increment()
+        except NotImplementedError:
+            self.skipTest("Does not support incrementing.")
 
         assert_that(mc1, is_(less_than(mc2)))
         assert_that(mc2, is_(greater_than(mc1)))
@@ -58,27 +72,35 @@ class TestMinMax(unittest.TestCase):
         assert_that(hash(mc1), is_(mc1.value))
 
     def test_add(self):
-        mc1 = MergingCounter(1)
-        mc2 = MergingCounter(2)
+        try:
+            mc1 = self._makeOne(1)
+        except NotImplementedError:
+            self.skipTest("Does not support initial values")
+        mc2 = self._makeOne(2)
 
-        assert_that(mc1 + mc2, is_(MergingCounter(3)))
+        assert_that(mc1 + mc2, is_(self._makeOne(3)))
 
         assert_that(mc1 + 2, is_(3))
 
         mc1 += 2
-        assert_that(mc1, is_(MergingCounter(3)))
+        assert_that(mc1, is_(self._makeOne(3)))
+
+
+class TestMergingCounter(NumericValueMixin,
+                         unittest.TestCase):
+
+    def _makeOne(self, *args):
+        return MergingCounter(*args)
+
+    def test_numeric_counter_interface(self):
+        assert_that(self._makeOne(),
+                    validly_provides(interfaces.INumericCounter))
 
     def test_merge_resolve(self):
-
         assert_that(MergingCounter()._p_resolveConflict(0, 0, 1), is_(1))
         # simultaneous increment adds
         assert_that(MergingCounter()._p_resolveConflict(0, 1, 1), is_(2))
 
-    def test_min_resolve(self):
-
-        assert_that(NumericMinimum()._p_resolveConflict(0, 0, 1), is_(0))
-        # simultaneous increment adds
-        assert_that(NumericMinimum()._p_resolveConflict(3, 4, 2), is_(2))
 
     def test_str(self):
 
@@ -89,6 +111,13 @@ class TestMinMax(unittest.TestCase):
         mc.set(1)
         assert_that(str(mc), is_("1"))
         assert_that(repr(mc), is_("MergingCounter(1)"))
+
+
+class TestConstantZeroValue(NumericValueMixin,
+                            unittest.TestCase):
+
+    def _makeOne(self, *args):
+        return ConstantZeroValue(*args)
 
     def test_zero(self):
         czv = ConstantZeroValue()
@@ -118,9 +147,28 @@ class TestMinMax(unittest.TestCase):
         assert_that(calling(czv._p_resolveConflict).with_args(None, None, None),
                     raises(NotImplementedError))
 
-from nti.zodb.persistentproperty import PersistentPropertyHolder
 
-from ZODB import DB
+class TestNumericMinumum(NumericValueMixin,
+                         unittest.TestCase):
+
+    def _makeOne(self, *args):
+        return NumericMinimum(*args)
+
+    def test_min_resolve(self):
+        assert_that(NumericMinimum()._p_resolveConflict(0, 0, 1), is_(0))
+        assert_that(NumericMinimum()._p_resolveConflict(3, 4, 2), is_(2))
+
+class TestNumericMaximum(NumericValueMixin,
+                         unittest.TestCase):
+
+    def _makeOne(self, *args):
+        return NumericMaximum(*args)
+
+    def test_max_resolve(self):
+        assert_that(self._makeOne()._p_resolveConflict(0, 0, 1), is_(1))
+        assert_that(self._makeOne()._p_resolveConflict(3, 4, 2), is_(4))
+
+
 
 class WithProperty(PersistentPropertyHolder):
 
