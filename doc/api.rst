@@ -52,3 +52,8 @@ ZlibStorage
 ===========
 
 .. automodule:: nti.zodb.zlibstorage
+
+BTrees
+======
+
+.. automodule:: nti.zodb.btrees
