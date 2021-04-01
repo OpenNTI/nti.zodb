@@ -20,10 +20,17 @@ from nti.zodb.activitylog import LogActivityComponent
 from nti.zodb.activitylog import StatsdActivityMonitor
 from nti.zodb.activitylog import StatsdActivityComponent
 from nti.zodb.activitylog import ActivityMonitorData
+from nti.zodb.activitylog import ComponentActivityMonitor
 
-AM_DATA = ActivityMonitorData(1, 1, 'foo', 42, 5)
+AM_DATA = ActivityMonitorData(
+    loads=1,
+    stores=1,
+    db_name='foo',
+    pool_all_count=42,
+    pool_idle_count=5
+)
 
-class TestBase(unittest.TestCase):
+class TestAbstractActivityMonitor(unittest.TestCase):
 
     def test_delegate_properties(self):
 
@@ -79,6 +86,48 @@ class TestBase(unittest.TestCase):
         assert_that(conn.stores, is_(0))
         assert_that(called_component, is_([1]))
 
+class TestComponentActivityMonitor(unittest.TestCase):
+
+    def test_get_loads_stores_with_base(self):
+        class Base(object):
+            closed = 0
+            def closedConnection(self, conn):
+                self.closed += 1
+                # Deliberately not calling anything on conn
+
+        class Conn(object):
+            database_name = 'DB'
+            all = ()
+            available = ()
+
+            def db(self):
+                return self
+
+            @property
+            def pool(self):
+                return self
+
+            loads = 1
+            stores = 2
+
+            def getTransferCounts(self, clear=False):
+                l, s = self.loads, self.stores
+                if clear:
+                    self.loads = self.stores = 0
+                return l, s
+
+        base = Base()
+        conn = Conn()
+        mon = ComponentActivityMonitor(base)
+        mon.closedConnection(conn)
+        # transfer counts were cleared
+        assert_that(conn, has_property('loads', 0))
+        assert_that(conn, has_property('stores', 0))
+
+        # Base was called once
+        assert_that(base, has_property('closed', 1))
+
+
 class TestLogActivityMonitor(unittest.TestCase):
 
     def setUp(self):
@@ -86,18 +135,78 @@ class TestLogActivityMonitor(unittest.TestCase):
         self.handler = InstalledHandler('nti.zodb.activitylog')
         self.addCleanup(self.handler.uninstall)
 
-    def test_closed_connection(self):
+    def _makeOne(self,
+                 min_loads_and_stores=1000,
+                 min_loads=1000,
+                 min_stores=1000):
         mon = LogActivityMonitor()
-        mon.components[0](AM_DATA)
+        log = mon.components[0]
+        log.min_loads_and_stores = min_loads_and_stores
+        log.min_loads = min_loads
+        log.min_stores = min_stores
+        return log
 
+    def _check_logs(self, log):
+        log(AM_DATA)
         assert_that(self.handler.records, has_length(1))
 
-    def test_closed_connection_threshold(self):
-        mon = LogActivityMonitor()
-        mon.components[0].min_loads_and_stores = 3
-        mon.components[0](AM_DATA)
+    def test_combined_log_threshold_met(self):
+        mon = self._makeOne(min_loads_and_stores=0)
+        self._check_logs(mon)
 
+    def test_combined_log_threshold_not_met(self):
+        mon = self._makeOne(min_loads_and_stores=3)
+        mon(AM_DATA)
         assert_that(self.handler.records, has_length(0))
+
+    def test_load_threshold_met(self):
+        mon = self._makeOne(min_loads=1)
+        self._check_logs(mon)
+
+    def test_store_threshold_met(self):
+        mon = self._makeOne(min_loads=1)
+        self._check_logs(mon)
+
+    def test_all_thresholds_met(self):
+        mon = self._makeOne(
+            min_loads_and_stores=0,
+            min_stores=0,
+            min_loads=0)
+        self._check_logs(mon)
+
+
+class TestGetNonNegativeIntegerFromEnviron(unittest.TestCase):
+
+    SETTING = 'NTI_ZODB_TESTING'
+
+    def tearDown(self):
+        import os
+        try:
+            del os.environ[self.SETTING]
+        except KeyError:
+            pass
+
+    setUp = tearDown
+
+    def _callFUT(self, default, env_value=None):
+        from ..activitylog import _get_non_negative_integer_from_environ as FUT
+        if env_value is not None:
+            import os
+            os.environ[self.SETTING] = env_value
+
+        return FUT(self.SETTING, default)
+
+    def test_no_value_return_default(self):
+        assert_that(self._callFUT(self), is_(self))
+
+    def test_negative_value_return_default(self):
+        assert_that(self._callFUT(self, "-1"), is_(self))
+
+    def test_malformed_value_return_default(self):
+        assert_that(self._callFUT(self, "abc"), is_(self))
+
+    def test_good_value(self):
+        assert_that(self._callFUT(self, "42"), is_(42))
 
 
 class TestStatsdLogActivityMonitor(unittest.TestCase):
@@ -131,7 +240,6 @@ class TestRegisterSubscriber(unittest.TestCase):
     def test_execute(self):
         from zope.processlifetime import DatabaseOpenedWithRoot
         from nti.zodb.activitylog import register_subscriber
-        from nti.zodb.activitylog import ComponentActivityMonitor
 
         class DB(object):
             dam = None

@@ -3,11 +3,19 @@
 =========
 
 
-1.2.1 (unreleased)
+1.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.9.
 
+- The ZODB activity log monitor now has separate thresholds for loads
+  and stores, in addition to the total combined threshold; exceeding
+  any threshold will trigger logging.
+
+  The thresholds have all been set to 10, but can be configured with
+  environment variables.
+
+  See `issue 11 <https://github.com/NextThought/nti.zodb/issues/11>`_.
 
 1.2.0 (2020-08-06)
 ==================

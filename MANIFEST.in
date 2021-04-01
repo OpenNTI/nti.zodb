@@ -7,12 +7,13 @@ include TODO
 include babel.cfg
 include nose2.cfg
 include tox.ini
-include .travis.yml
 include *.txt
 include .nti_cover_package
 
-recursive-include doc *.py
-recursive-include doc *.rst
-recursive-include doc Makefile
-recursive-exclude doc changelog.rst
+recursive-include .github *
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-exclude docs changelog.rst
+
 recursive-include src *.zcml
