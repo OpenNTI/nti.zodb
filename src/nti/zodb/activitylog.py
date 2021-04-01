@@ -12,11 +12,38 @@ Originally based on code from the unreleased zc.zodbactivitylog.
 from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
+import os
 from collections import namedtuple
 from functools import partial
 from perfmetrics import statsd_client
 
+from ZConfig.datatypes import integer
+from ZConfig.datatypes import RangeCheckedConversion
+
 logger = __import__('logging').getLogger(__name__)
+
+non_negative_integer = RangeCheckedConversion(integer, min=0)
+
+
+def _setting_from_environ(converter, environ_name, default):
+    result = default
+    env_val = os.environ.get(environ_name, default)
+    if env_val is not default:
+        try:
+            result = converter(env_val)
+        except (ValueError, TypeError):
+            logger.exception("Failed to parse environment value %r for key %r",
+                             env_val, environ_name)
+            result = default
+
+    logger.debug('Using value %s from environ %r=%r (default=%r)',
+                 result, environ_name, env_val, default)
+    return result
+
+
+def _get_non_negative_integer_from_environ(environ_name, default):
+    return _setting_from_environ(non_negative_integer, environ_name, default)
+
 
 class ComponentActivityMonitor(object):
     """
@@ -110,19 +137,53 @@ class LogActivityComponent(ActivityMonitorComponent):
     """
     An activity monitor component that logs connection transfer information
     and pool information.
+
+    .. versionchanged:: 1.3.0
+       Add `min_loads` and `min_stores`. These additional thresholds
+       are tested in addition to `min_loads_and_stores` and if any
+       threshold is reached the logging happens. The default value of
+       each threshold is 10.
+
+       The thresholds may be configured in the environment (before loading
+       this class) as integer strings using the values
+       ``NTI_ZODB_LOG_MIN_LOADS``, ``NTI_ZODB_LOG_MIN_STORES``,
+       and ``NTI_ZODB_LOG_MIN_ACTIVITY``, respectively.
     """
 
-    #: Only perform the logging if the total of loads + stores is
+    #: Perform logging if the total of loads + stores is
     #: at least this many.
-    min_loads_and_stores = 1
+    min_loads_and_stores = _get_non_negative_integer_from_environ(
+        "NTI_ZODB_LOG_MIN_ACTIVITY",
+        10
+    )
+
+    #: Perform logging if the number of loads is
+    #: at least this many.
+    min_loads = _get_non_negative_integer_from_environ(
+        "NTI_ZODB_LOG_MIN_LOADS",
+        10
+    )
+
+    #: Perform logging if the number of stores is
+    #: at least this many.
+    min_stores = _get_non_negative_integer_from_environ(
+        "NTI_ZODB_LOG_MIN_STORES",
+        10
+    )
 
     def __call__(self, data):
         # type: (ActivityMonitorData) -> None
-        if data.loads + data.stores >= self.min_loads_and_stores:
+        loads = data.loads
+        stores = data.stores
+        if (
+                loads >= self.min_loads
+                or stores > self.min_stores
+                or loads + stores >= self.min_loads_and_stores
+        ):
             logger.info(
                 "closedConnection={'loads': %5d, 'stores': %5d, 'database': %s, "
                 "'num_connections': %5d, 'num_avail_connections': %5d}",
-                data.loads, data.stores, data.db_name,
+                loads, stores, data.db_name,
                 data.pool_all_count, data.pool_idle_count)
 
 
