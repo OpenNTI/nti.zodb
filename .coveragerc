@@ -2,6 +2,7 @@
 source = nti.zodb
 # New in 5.0; required for the GHA coveralls submission.
 relative_files = True
+dynamic_context = test_function
 
 [report]
 exclude_lines =

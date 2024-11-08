@@ -29,7 +29,7 @@ def wref_copy_factory(ref):
     Currently we assume that the reference can be resolved at copy time
     (since we cannot create a reference to None).
     """
-    def factory(toplevel, register):
+    def factory(toplevel, register): # pylint:disable=unused-argument
         # We do need a new object, presumably we're moving databases
         return WeakRef(ref())
     return factory

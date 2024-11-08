@@ -64,7 +64,7 @@ def isBroken(obj, uid=None):
             obj._p_activate()
         except (TypeError, AttributeError):
             pass
-        return IBroken.providedBy(obj)
+        return IBroken.providedBy(obj) # pylint:disable=no-value-for-parameter
     except (POSKeyError, TypeError):
         # XXX: How can TypeError be raised by IBroken.providedBy?
         # Note that we only catch POSKeyError---anything else, like
