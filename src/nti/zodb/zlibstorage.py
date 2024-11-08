@@ -7,10 +7,8 @@ TODO: Add support for zodburi, which can be installed automatically
 as entry points in setup.py.
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
 
-logger = __import__('logging').getLogger(__name__)
+__docformat__ = "restructuredtext en"
 
 import os
 
@@ -32,8 +30,7 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
 
         # It expect to find 'zeo' so make that happen
         uri = uri.replace('zlibzeo://', 'zeo://')
-        key, args, storage_kw, _ = \
-            super(ZlibStorageClientStorageURIResolver, self).__call__(uri)
+        key, args, storage_kw, _ =  super().__call__(uri)
 
         # key = (args, tuple(kw items), tuple(dbkw items))
         dbkw = dict(key[2])
@@ -57,7 +54,7 @@ class ZlibStorageClientStorageURIResolver(resolvers.ClientStorageURIResolver):
             # unicode
             client = ClientStorage(*args, **storage_kw)
             if 'demostorage' in orig_kw:  # pragma: no cover
-                client = DemoStorage(base=client)
+                client = DemoStorage(base=client) # pylint:disable=redefined-variable-type
 
             zlib = ZlibStorage(client)
             return DB(zlib, **dbkw)
@@ -77,7 +74,7 @@ class ZlibStorageFileStorageURIResolver(resolvers.FileStorageURIResolver):
         # It expect to find 'file' so make that happen
         uri = uri.replace('zlibfile://', 'file://')
         key, args, storage_kw, _factory = \
-            super(ZlibStorageFileStorageURIResolver, self).__call__(uri)
+            super().__call__(uri)
 
         def zlibfactory():
             db = _factory()

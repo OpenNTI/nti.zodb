@@ -18,7 +18,7 @@ import unittest
 
 from persistent import Persistent
 from ZODB import DB
-import transaction
+
 
 class TestCopyWref(unittest.TestCase):
 

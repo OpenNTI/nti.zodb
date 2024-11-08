@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 from hamcrest import assert_that
@@ -30,7 +29,6 @@ class TestCopyWref(unittest.TestCase):
 
     def test_copy(self):
         # When not configured, can't copy the connection
-        import pickle
         orig_wref = self.make_one()
         self.assertRaises(Exception, copy.copy, orig_wref)
 

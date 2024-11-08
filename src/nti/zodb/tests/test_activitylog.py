@@ -91,7 +91,7 @@ class TestComponentActivityMonitor(unittest.TestCase):
     def test_get_loads_stores_with_base(self):
         class Base(object):
             closed = 0
-            def closedConnection(self, conn):
+            def closedConnection(self, _conn):
                 self.closed += 1
                 # Deliberately not calling anything on conn
 
@@ -131,7 +131,7 @@ class TestComponentActivityMonitor(unittest.TestCase):
 class TestLogActivityMonitor(unittest.TestCase):
 
     def setUp(self):
-        super(TestLogActivityMonitor, self).setUp()
+        super().setUp()
         self.handler = InstalledHandler('nti.zodb.activitylog')
         self.addCleanup(self.handler.uninstall)
 

@@ -1,11 +1,11 @@
 import codecs
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools import find_namespace_packages
 
 
 TESTS_REQUIRE = [
     'nti.testing',
     'zope.testrunner',
-    'fudge',
     'coverage',
 ]
 
@@ -29,25 +29,21 @@ setup(
         'Operating System :: OS Independent',
         "Framework :: ZODB",
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     url="https://github.com/OpenNTI/nti.zodb",
     zip_safe=True,
-    packages=find_packages('src'),
+    packages=find_namespace_packages(where='src'),
     package_dir={'': 'src'},
     include_package_data=True,
-    namespace_packages=['nti'],
-    tests_require=TESTS_REQUIRE,
     install_requires=[
-        'setuptools',
         'nti.property', # BWC exports
         'nti.schema',
         'nti.wref',
@@ -78,4 +74,5 @@ setup(
             'sphinx_rtd_theme',
         ]
     },
+    python_requires=">=3.10",
 )

@@ -5,7 +5,7 @@ Interfaces for objects defined in the ZODB package.
 
 """
 
-from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 from zope import schema
@@ -29,13 +29,13 @@ class ITokenBucket(interface.Interface):
     or denied based on whether there are enough tokens in the bucket.
     """
 
-    fill_rate = schema.Float(title=u"The rate in tokens per second at which new tokens arrive.",
+    fill_rate = schema.Float(title="The rate in tokens per second at which new tokens arrive.",
                              default=1.0,
                              min=0.0)
-    capacity = schema.Float(title=u"The maximum capacity of the token bucket.",
+    capacity = schema.Float(title="The maximum capacity of the token bucket.",
                             min=0.0)
 
-    tokens = schema.Float(title=u"The current number of tokens in the bucket at this instant.",
+    tokens = schema.Float(title="The current number of tokens in the bucket at this instant.",
                           min=0.0)
 
     def consume(tokens=1):
@@ -60,7 +60,7 @@ class INumericValue(IAbstractValue):
     """
     A persistent numeric value with conflict resolution.
     """
-    value = Number(title=u"The numeric value of this object.")
+    value = Number(title="The numeric value of this object.")
 
     def set(value):
         """

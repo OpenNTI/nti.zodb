@@ -5,7 +5,7 @@ Conflict resolving value/counter implementations for use on persistent objects.
 
 """
 
-from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 import functools
@@ -41,7 +41,7 @@ class AbstractNumericValue(AbstractValue): # pylint:disable=abstract-method
     value = 0
 
     def __init__(self, value=0):
-        super(AbstractNumericValue, self).__init__(value)
+        super().__init__(value)
 
     def increment(self, amount=1):
         self.set(self.value + amount)
@@ -106,13 +106,13 @@ class _ConstantZeroValue(AbstractNumericValue):
     """
 
     def __init__(self, value=0):
-        super(_ConstantZeroValue, self).__init__(value=0)
+        super().__init__(value=0)
         assert 'value' not in self.__dict__
 
     def __getstate__(self):
         raise TypeError()
 
-    def _p_resolveConflict(self, old, committed, new): # pylint:disable=arguments-differ
+    def _p_resolveConflict(self, old, committed, new): # pylint:disable=arguments-renamed
         raise NotImplementedError()
 
     def set(self, value):
@@ -166,7 +166,7 @@ class MergingCounter(AbstractNumericValue):
         self.value += amount
         return self
 
-    def _p_resolveConflict(self, oldState, savedState, newState):  # pylint:disable=arguments-differ
+    def _p_resolveConflict(self, oldState, savedState, newState):  # pylint:disable=arguments-renamed
         if savedState == newState == 0:
             return 0
 
@@ -200,12 +200,14 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
             self.prop = prop
 
         def increment(self, amount=1):
+            # pylint:disable=unnecessary-dunder-call
             # Use the original NumericPropertyDefaultingToZero descriptor
             # to set the value, calling the factory and storing it.
             self.prop.__set__(self.holder, amount)
             return self.prop.__get__(self.holder, type(self.holder))
 
         def set(self, value):
+             # pylint:disable=unnecessary-dunder-call
             if value == 0:
                 return
             self.prop.__set__(self.holder, value)

@@ -3,10 +3,11 @@
 =========
 
 
-1.3.1 (unreleased)
+1.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Drop support for Python < 3.10.
+- Use native namespace packages.
 
 
 1.3.0 (2021-04-01)

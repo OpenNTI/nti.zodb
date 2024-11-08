@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -14,8 +13,9 @@ from nti.testing.matchers import is_true
 from nti.testing.matchers import is_false
 from nti.testing.matchers import validly_provides
 
-import fudge
+
 import unittest
+from unittest import mock as fudge
 
 from nti.zodb import interfaces
 
@@ -36,7 +36,7 @@ class TestTokenBucket(unittest.TestCase):
     def test_consume(self, fudge_time):
 
         fudge_time.is_callable()
-        fudge_time.returns(0)
+        fudge_time.return_value = 0
         bucket = PersistentTokenBucket(2)
 
         assert_that(bucket, validly_provides(interfaces.ITokenBucket))
@@ -50,24 +50,23 @@ class TestTokenBucket(unittest.TestCase):
 
         # If we strobe the clock forward, we can get another token, since
         # we are refilling at one per second
-        fudge_time.returns(1)
+        fudge_time.return_value = 1
 
         assert_that(bucket.consume(), is_true())
         assert_that(bucket.consume(), is_false())
 
         # skip forward two seconds, and we can consume both tokens again
-        fudge_time.returns(3)
+        fudge_time.return_value = 3
         assert_that(bucket.consume(2), is_true())
         assert_that(bucket.consume(), is_false())
 
         # cover
         assert_that(repr(bucket), is_('PersistentTokenBucket(2.0,1.0)'))
 
-    @fudge.patch('nti.zodb.tokenbucket.time', 'nti.zodb.tokenbucket.sleep')
+    @fudge.patch('nti.zodb.tokenbucket.sleep')
+    @fudge.patch('nti.zodb.tokenbucket.time')
     def test_wait(self, fudge_time, fudge_sleep):
-
-        fudge_time.is_callable()
-        fudge_time.returns(0)
+        fudge_time.return_value = 0
         bucket = PersistentTokenBucket(2)
 
         # at time 0, the bucket has two tokens in it
@@ -77,14 +76,12 @@ class TestTokenBucket(unittest.TestCase):
         # Which are now gone
         assert_that(bucket.consume(), is_false())
 
-        fudge_sleep.is_callable()
-
         def _sleep(how_long):
             # If we strobe the clock forward, we can get another token, since
             # we are refilling at one per second
             assert_that(how_long, is_(1.0))
-            fudge_time.returns(1)
+            fudge_time.return_value = 1
 
-        fudge_sleep._callable.call_replacement = _sleep
+        fudge_sleep.side_effect = _sleep
         # Sleep gets called, strobes the clock, and we move forward
         assert_that(bucket.wait_for_token(), is_true())

@@ -5,10 +5,7 @@ Utilities for weak references to persistent objects.
 
 """
 
-from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 from nti.wref.interfaces import ICachingWeakRef
@@ -34,11 +31,11 @@ class CopyingWeakRef(WeakRef):
     """
 
     def __init__(self, ob):
-        super(CopyingWeakRef, self).__init__(ob)
+        super().__init__(ob)
         self._copy = copy.copy(ob)
 
     def __call__(self, allow_cached=True):
-        result = super(CopyingWeakRef, self).__call__()
+        result = super().__call__()
         if result is None and allow_cached:
             result = self._copy
         return result

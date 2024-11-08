@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -13,68 +13,63 @@ from hamcrest import assert_that
 from hamcrest import has_property
 from hamcrest import not_none
 
-import fudge
 import unittest
+from unittest import mock as fudge
 
 from nti.zodb.zlibstorage import ZlibStorageClientStorageURIResolver
 from nti.zodb.zlibstorage import ZlibStorageFileStorageURIResolver
 
-from nti.zodb.tests import SharedConfiguringTestLayer
-
 
 class TestZlibStorage(unittest.TestCase):
 
-    @fudge.patch('ZEO.ClientStorage.ClientStorage',
-                 'zc.zlibstorage.ZlibStorage',
-                 'ZODB.DB')
-    def test_resolve_zeo(self, fudge_cstor, fudge_zstor, fudge_db):
 
-        uri = ('zlibzeo:///dev/null/Users/jmadden/Projects/DsEnvs/AlphaExport/var/zeosocket'
-               '?connection_cache_size=25000'
-               '&cache_size=104857600&storage=1'
-               '&database_name=Users'
-               '&blob_dir=/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs'
-               '&shared_blob_dir=True')
+    def test_resolve_zeo(self):
+        with fudge.patch('ZEO.ClientStorage.ClientStorage') as mock_cs, \
+             fudge.patch('zc.zlibstorage.ZlibStorage'), \
+             fudge.patch('ZODB.DB') as mock_db:
+            uri = ('zlibzeo:///dev/null/Users/jmadden/Projects/DsEnvs/AlphaExport/var/zeosocket'
+                   '?connection_cache_size=25000'
+                   '&cache_size=104857600&storage=1'
+                   '&database_name=Users'
+                   '&blob_dir=/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs'
+                   '&shared_blob_dir=True')
 
-        _, _, kw, factory = ZlibStorageClientStorageURIResolver()(uri)
+            _, _, kw, factory = ZlibStorageClientStorageURIResolver()(uri)
 
-        assert_that(kw, is_({'blob_dir': '/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs',
-                             'cache_size': 104857600,
-                             'shared_blob_dir': 1,
-                             'storage': '1'}))
-        assert_that(factory, has_property('__name__', 'zlibfactory'))
+            assert_that(kw, is_({
+                'blob_dir': '/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs',
+                'cache_size': 104857600,
+                'shared_blob_dir': 1,
+                'storage': '1'}))
+            assert_that(factory, has_property('__name__', 'zlibfactory'))
 
-        fudge_cstor.is_callable().returns_fake().is_a_stub()
-        fudge_zstor.is_callable().returns(1)
-        fudge_db.is_callable().returns(2)
+            mock_cs.return_value = 1
+            mock_db.return_value = 2
 
-        assert_that(factory(), is_(2))
-
-    @fudge.patch('repoze.zodbconn.resolvers.FileStorage',
-                 'zc.zlibstorage.ZlibStorage',
-                 'repoze.zodbconn.resolvers.DB')
-    def test_resolve_file(self, fudge_cstor, fudge_zstor, fudge_db):
-
-        uri = ('zlibfile:///dev/null/Users/jmadden/Projects/DsEnvs/AlphaExport/var/zeosocket'
-               '?connection_cache_size=25000'
-               '&cache_size=104857600&storage=1'
-               '&database_name=Users'
-               '&blob_dir=/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs'
-               '&shared_blob_dir=True')
-
-        _, _, kw, factory = ZlibStorageFileStorageURIResolver()(uri)
-
-        assert_that(kw, is_({}))
+            assert_that(factory(), is_(2))
 
 
+    def test_resolve_file(self):
+        with fudge.patch('repoze.zodbconn.resolvers.FileStorage'), \
+             fudge.patch('zc.zlibstorage.ZlibStorage') as fudge_zstor, \
+             fudge.patch('repoze.zodbconn.resolvers.DB'):
+            uri = ('zlibfile:///dev/null/Users/jmadden/Projects/DsEnvs/AlphaExport/var/zeosocket'
+                   '?connection_cache_size=25000'
+                   '&cache_size=104857600&storage=1'
+                   '&database_name=Users'
+                   '&blob_dir=/Users/jmadden/Projects/DsEnvs/AlphaExport/data/data.fs.blobs'
+                   '&shared_blob_dir=True')
 
-        assert_that(factory, has_property('__name__', 'zlibfactory'))
+            _, _, kw, factory = ZlibStorageFileStorageURIResolver()(uri)
 
-        fudge_cstor.is_callable().returns_fake().is_a_stub()
-        fudge_zstor.is_callable().returns(1)
-        fudge_db.is_callable().returns_fake().is_a_stub()
+            assert_that(kw, is_({}))
 
-        assert_that(factory(), is_(not_none()))
+
+            assert_that(factory, has_property('__name__', 'zlibfactory'))
+
+            fudge_zstor.return_value = 1
+
+            assert_that(factory(), is_(not_none()))
 
     def test_install(self):
         from repoze.zodbconn import resolvers

@@ -5,11 +5,7 @@ Classes for making :class:`property` objects (actually, general descriptors)
 more convenient for working with in :class:`persistent.Persistent` objects.
 
 """
-
-from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
 
 from persistent import Persistent
 
@@ -88,4 +84,4 @@ class PersistentPropertyHolder(Persistent):
         if descriptor is not None:
             descriptor.__set__(self, value)
         else:
-            super(PersistentPropertyHolder, self).__setattr__(name, value)
+            super().__setattr__(name, value)
