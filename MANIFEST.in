@@ -10,6 +10,7 @@ include tox.ini
 include *.txt
 include .nti_cover_package
 include .pylintrc
+include *.yml
 
 recursive-include .github *
 recursive-include docs *.py
