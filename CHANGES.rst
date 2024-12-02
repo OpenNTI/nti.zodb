@@ -3,10 +3,11 @@
 =========
 
 
-4.1.1 (unreleased)
+4.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add a case-insensitive but case-preserving BTreeContainer and
+  BTreeFolder.
 
 
 1.4.0 (2024-11-08)
