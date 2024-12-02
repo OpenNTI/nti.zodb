@@ -3,7 +3,7 @@
 =========
 
 
-4.2.0 (unreleased)
+4.2.0 (2024-12-02)
 ==================
 
 - Add a case-insensitive but case-preserving BTreeContainer and

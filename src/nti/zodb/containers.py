@@ -68,7 +68,7 @@ class CaseInsensitiveKey:
 
     It must not be subclassed.
 
-    .. versionadded:: NEXT
+    .. versionadded:: 4.2.0
     """
 
     __slots__ = ('key',)
@@ -139,7 +139,7 @@ class CaseInsensitiveBTreeContainer(_CheckObjectOnSetMixin,
 
     The underlying BTree is configured for large amounts of data.
 
-    .. versionadded:: NEXT
+    .. versionadded:: 4.2.0
     """
 
     # For speed, we generally implement all these functions directly in terms of the
