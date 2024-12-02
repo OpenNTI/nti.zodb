@@ -65,6 +65,7 @@ setup(
         'zope.minmax',
         'zope.processlifetime',
         'zope.security',
+        'zope.site',
     ],
     extras_require={
         'test': TESTS_REQUIRE,
