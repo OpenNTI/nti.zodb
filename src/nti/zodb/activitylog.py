@@ -9,40 +9,15 @@ Originally based on code from the unreleased zc.zodbactivitylog.
 
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-import os
+import logging
 from collections import namedtuple
 from functools import partial
 from perfmetrics import statsd_client
 
-from ZConfig.datatypes import integer
-from ZConfig.datatypes import RangeCheckedConversion
+from nti.property.tunables import Tunable
 
-logger = __import__('logging').getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-non_negative_integer = RangeCheckedConversion(integer, min=0)
-
-
-def _setting_from_environ(converter, environ_name, default):
-    result = default
-    env_val = os.environ.get(environ_name, default)
-    if env_val is not default:
-        try:
-            result = converter(env_val)
-        except (ValueError, TypeError):
-            logger.exception("Failed to parse environment value %r for key %r",
-                             env_val, environ_name)
-            result = default
-
-    logger.debug('Using value %s from environ %r=%r (default=%r)',
-                 result, environ_name, env_val, default)
-    return result
-
-
-def _get_non_negative_integer_from_environ(environ_name, default):
-    return _setting_from_environ(non_negative_integer, environ_name, default)
 
 
 class ComponentActivityMonitor(object):
@@ -152,23 +127,26 @@ class LogActivityComponent(ActivityMonitorComponent):
 
     #: Perform logging if the total of loads + stores is
     #: at least this many.
-    min_loads_and_stores = _get_non_negative_integer_from_environ(
+    min_loads_and_stores = Tunable(
+        10,
         "NTI_ZODB_LOG_MIN_ACTIVITY",
-        10
+        getter="integer0",
     )
 
     #: Perform logging if the number of loads is
     #: at least this many.
-    min_loads = _get_non_negative_integer_from_environ(
+    min_loads = Tunable(
+        10,
         "NTI_ZODB_LOG_MIN_LOADS",
-        10
+        getter="integer0",
     )
 
     #: Perform logging if the number of stores is
     #: at least this many.
-    min_stores = _get_non_negative_integer_from_environ(
+    min_stores = Tunable(
+        10,
         "NTI_ZODB_LOG_MIN_STORES",
-        10
+        getter="integer0",
     )
 
     def __call__(self, data):
@@ -226,7 +204,7 @@ class StatsdActivityComponent(ActivityMonitorComponent):
         # Should these be counters or gauges? Or even sets?
         # counters are aggregated across all instances, gauges (by default) are broken out
         # by host
-        buf = []
+        buf:list = []
         statsd.gauge('ZODB.DB.' + data.db_name + '.loads',
                      data.loads, buf=buf)
         statsd.gauge('ZODB.DB.' + data.db_name + '.stores',

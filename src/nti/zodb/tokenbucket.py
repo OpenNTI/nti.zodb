@@ -16,7 +16,7 @@ from zope import interface
 
 try:
     from gevent import sleep
-except ImportError:
+except ImportError: # pragma: no cover
     from time import sleep
 
 from nti.zodb.interfaces import ITokenBucket

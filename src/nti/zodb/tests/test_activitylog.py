@@ -175,40 +175,6 @@ class TestLogActivityMonitor(unittest.TestCase):
         self._check_logs(mon)
 
 
-class TestGetNonNegativeIntegerFromEnviron(unittest.TestCase):
-
-    SETTING = 'NTI_ZODB_TESTING'
-
-    def tearDown(self):
-        import os
-        try:
-            del os.environ[self.SETTING]
-        except KeyError:
-            pass
-
-    setUp = tearDown
-
-    def _callFUT(self, default, env_value=None):
-        from ..activitylog import _get_non_negative_integer_from_environ as FUT
-        if env_value is not None:
-            import os
-            os.environ[self.SETTING] = env_value
-
-        return FUT(self.SETTING, default)
-
-    def test_no_value_return_default(self):
-        assert_that(self._callFUT(self), is_(self))
-
-    def test_negative_value_return_default(self):
-        assert_that(self._callFUT(self, "-1"), is_(self))
-
-    def test_malformed_value_return_default(self):
-        assert_that(self._callFUT(self, "abc"), is_(self))
-
-    def test_good_value(self):
-        assert_that(self._callFUT(self, "42"), is_(42))
-
-
 class TestStatsdLogActivityMonitor(unittest.TestCase):
 
     def test_closed_connection_no_client(self):

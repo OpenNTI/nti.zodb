@@ -20,7 +20,6 @@ from nti.zodb.interfaces import INumericValue
 from nti.zodb.interfaces import INumericCounter
 from nti.zodb.persistentproperty import PropertyHoldingPersistent
 
-from six import integer_types
 
 # Give all these things a 'set' method, a point for subclasses
 # to potentially override
@@ -276,7 +275,7 @@ class NumericPropertyDefaultingToZero(PropertyHoldingPersistent):
     def __set__(self, inst, value):
         self.__activate(inst)
         val = inst.__dict__.get(self.__name__, None)
-        if val is None or isinstance(val, integer_types):
+        if val is None or isinstance(val, int):
             if not value:
                 # not in dict, but they gave us the default value, so ignore it
                 return
