@@ -12,6 +12,12 @@ Utilities
 
 .. automodule:: nti.zodb
 
+Database Configuration
+======================
+
+.. automodule:: nti.zodb.config_providers
+
+
 Activity Log
 ============
 

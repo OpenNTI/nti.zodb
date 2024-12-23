@@ -44,7 +44,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     install_requires=[
-        'nti.property', # BWC exports
+        'nti.property',
         'nti.schema',
         'nti.wref',
         'perfmetrics',
@@ -61,6 +61,7 @@ setup(
         'zope.copy',
         'zope.copypastemove',
         'zope.deprecation',
+        'zope.event',
         'zope.interface',
         'zope.minmax',
         'zope.processlifetime',

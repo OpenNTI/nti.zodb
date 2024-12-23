@@ -3,10 +3,12 @@
 =========
 
 
-4.2.1 (unreleased)
+4.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add a series of interfaces and APIs supporting database
+  configuration and registration for use during process startup.
+  See `nti.zodb.config_providers.provideDatabases`.
 
 
 4.2.0 (2024-12-02)

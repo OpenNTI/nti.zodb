@@ -18,6 +18,7 @@ from nti.schema.field import Number
 
 # pylint:disable=inherit-non-class,no-self-argument,no-method-argument
 # pylint:disable=unexpected-special-method-signature
+# mypy: ignore-errors
 
 class ITokenBucket(interface.Interface):
     """
@@ -127,3 +128,79 @@ else:
     UnableToAcquireCommitLock = interfaces.UnableToAcquireCommitLockError  # alias pragma: no cover
 
 ZODBUnableToAcquireCommitLock = UnableToAcquireCommitLock # BWC
+
+
+###
+# NOTE: For flexibility, it is possible to imagine defining an
+# IZODBProvider object that returns a sequence of named IDatabase
+# directly. We could then have an implementation of this that
+# implements the "find the config providers"
+
+class IZODBProvider(interface.Interface):
+    """
+    Provides zero or more ZODB :class:`ZODB.interfaces.IDatabase`
+    objects to be registered as global components.
+
+    This is a low-level interface that most people won't implement.
+    Instead, see :class:`IZODBConfigProvider`.
+
+    When this is implemented, it is intended to be registered as a
+    global named utility. Some startup process is invoked to find all
+    such utilities, invoke them, and register the resulting databases
+    as global components. The API
+    :func:`nti.zodb.config_providers.provideDatabases` is provided for
+    this purpose.
+
+    .. versionadded:: NEXT
+    """
+
+    def getDatabases():
+        """
+        Return a mapping of ``{name: database}`` objects.
+        Each *database* is meant to be registered as a global component
+        with the given *name*.
+        """
+
+
+class IZODBConfigProvider(interface.Interface):
+    """
+    Provides a ZODB configuration suitable for creating ZODB database
+    object.
+
+    The format of this configuration, and how it is accessed, is not
+    defined. You are expected to provide an adapter from (a
+    sub-interface of) this interface to
+    :class:`ZODB.interfaces.IDatabase`.
+
+    This package provides an implementation of :class:`IZODBProvider`
+    that looks for named utilities of this interface, and
+    adapts them to the databases to be returned from ``getDatabases``.
+
+    .. important::
+       For these utilities to be found, you must be sure to register
+       them to provide exactly this interface, not the sub-interface
+       they actually implement.
+
+    This package provides one sub-interface, and the appropriate adapter;
+    see :class:`IZODBZConfigProvider`
+
+    .. versionadded:: NEXT
+    """
+
+class IZODBZConfigProvider(interface.Interface):
+    """
+    This package provides an implementation of this interface for a
+    temporary (in-memory) database in :mod:`.config_providers` as well
+    as an implementation of the registration step in :func:`~.`.
+
+    By default, the temporary database config provider is registered
+    in the ``configure_configprovider.zcml`` file with the name
+    \"mtemp\". No functionality in this package requires this, and you
+    can use zope.configuration overrides to cancel this registration.
+    """
+
+    def getZConfigString():
+        """
+        Return the ZConfig string to be passed to
+        :func:`ZODB.config.databaseFromString`.
+        """

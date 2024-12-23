@@ -14,6 +14,15 @@
 
 	<include package="." file="configure_activitylog.zcml" />
 
+
+    <!-- This config provider adapter is always safe and desired -->
+    <adapter factory=".config_providers.zconfig_provider_to_database"
+             />
+    <utility factory=".config_providers.ZODBConfigProviderDBProvider"
+             name="ZConfig" />
+    <!-- But we may want to override thise. -->
+    <include package="." file="configure_configprovider.zcml" />
+
 	<!-- Mark PersistentMapping as an IFullMapping -->
 	<class class="persistent.mapping.PersistentMapping">
 		<implements interface="zope.interface.common.mapping.IFullMapping" />
