@@ -2,7 +2,7 @@
 """
 Implementations of, and helpers for, :class:`~.interfaces.IZODBZConfigProvider`
 
-.. versionadded:: NEXT
+.. versionadded:: 4.3.0
 
 """
 import logging

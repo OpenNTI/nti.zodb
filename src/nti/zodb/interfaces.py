@@ -151,7 +151,7 @@ class IZODBProvider(interface.Interface):
     :func:`nti.zodb.config_providers.provideDatabases` is provided for
     this purpose.
 
-    .. versionadded:: NEXT
+    .. versionadded:: 4.3.0
     """
 
     def getDatabases():
@@ -184,7 +184,7 @@ class IZODBConfigProvider(interface.Interface):
     This package provides one sub-interface, and the appropriate adapter;
     see :class:`IZODBZConfigProvider`
 
-    .. versionadded:: NEXT
+    .. versionadded:: 4.3.0
     """
 
 class IZODBZConfigProvider(interface.Interface):
