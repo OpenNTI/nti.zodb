@@ -87,10 +87,17 @@ class DatabaseProvider:
         existing_databases = dict(gsm.getUtilitiesFor(IDatabase))
         for name, db in existing_databases.items():
             if name in dbs:
+                if name == '' and len(dbs) == 2 and len({id(v) for v in dbs.values()}) == 1:
+                    # There is a default Db registered. We only found
+                    # one component registration, and it was for a
+                    # named DB that we're trying to make the default.
+                    # Well, we have a default, so don't do that.
+                    dbs.pop('')
+                    continue
                 raise ValueError("Database name %r already registered." % (name,))
-        # Update them to be sure they also have the right name and databases.
-        dbs.update(existing_databases)
 
+        dbs.update(existing_databases)
+        # Update them to be sure they also have the right name and databases.
         for name, db in existing_databases.items():
             db.database_name = name
             db.databases = dbs
@@ -104,7 +111,7 @@ class DatabaseProvider:
         for _name, db_provider in gsm.getUtilitiesFor(IZODBProvider):
             provider_dbs = db_provider.getDatabases()
             for k in provider_dbs:
-                if k in dbs:
+                if k in dbs: # pragma: no cover
                     raise ValueError("Database name %r already provided" % (k,))
             dbs |= provider_dbs
         return dbs
@@ -132,6 +139,11 @@ class DatabaseProvider:
         # Add the existing to the multi-db, and confirm no name
         # overlaps.
         existing_databases = self._check_and_update_existing_databases(dbs)
+        assert all(d.databases is dbs for d in existing_databases.values())
+
+
+
+
 
         # Register the new ones. Don't also re-register existing ones
         # because that will send a bunch of notifications we don't want to

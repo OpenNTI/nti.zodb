@@ -122,7 +122,7 @@ class UnableToAcquireCommitLock(StorageError):
 
 try:
     from relstorage.adapters import interfaces
-except ImportError:
+except ImportError: # pragma: no cover
     pass
 else:
     UnableToAcquireCommitLock = interfaces.UnableToAcquireCommitLockError  # alias pragma: no cover

@@ -11,7 +11,9 @@ from nti.testing.matchers import verifiably_provides
 
 from hamcrest import assert_that
 from hamcrest import has_length
+from hamcrest import has_properties
 from hamcrest import is_
+from hamcrest import is_not
 from hamcrest import same_instance
 
 
@@ -50,8 +52,8 @@ class TestProvideDatabases(ConfiguringTestBase):
 
     def test_provide_temp_database(self):
         from zope import component
-        from ZODB.interfaces import IDatabase
         from zope.processlifetime import DatabaseOpened
+        from ZODB.interfaces import IDatabase
 
         from ..config_providers import provideDatabases
 
@@ -74,6 +76,49 @@ class TestProvideDatabases(ConfiguringTestBase):
         # Doing it again refuses to change anything, all names are duplicated
         with self.assertRaisesRegex(ValueError, 'already registered'):
             provideDatabases()
+
+    def test_with_existing(self):
+        from zope import component
+        from ZODB.interfaces import IDatabase
+        from ..config_providers import InMemoryDemoStorageZConfigProvider as ZCP
+        from ..config_providers import provideDatabases
+
+        db = IDatabase(ZCP())
+
+        component.provideUtility(db, IDatabase)
+        provideDatabases()
+
+class TestProvideMultiDatabase(ConfiguringTestBase):
+    set_up_packages = (('prov_multi.zcml', __name__),)
+
+    def test_provide_multi(self):
+        from zope import component
+        from zope.processlifetime import DatabaseOpened
+
+        from ZODB.interfaces import IDatabase
+
+        from ..config_providers import provideDatabases
+
+
+        events:list = []
+        component.provideHandler(events.append, (None,))
+
+        provideDatabases()
+        # This time, no default is provided
+        default_db = component.queryUtility(IDatabase)
+        named_db = component.getUtility(IDatabase, "mtemp")
+        named_db2 = component.getUtility(IDatabase, "mtemp2")
+
+        self.assertIsNone(default_db)
+        assert_that(named_db, is_not(same_instance(named_db2)))
+        assert_that(named_db, has_properties(
+            databases=is_(same_instance(named_db2.databases))
+        ))
+
+        # No databaseOpened event this time.
+        assert_that(events, has_length(2))
+        assert_that([e for e in events if isinstance(e, DatabaseOpened)],
+                    has_length(0))
 
 if __name__ == '__main__':
     unittest.main()

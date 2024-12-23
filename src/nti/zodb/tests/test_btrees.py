@@ -120,18 +120,13 @@ class TestBTree(unittest.TestCase):
         pickle_modules = []
         import pickle
         pickle_modules.append(pickle)
-        try:
-            import cPickle
-        except ImportError:
-            pass
-        else:
-            pickle_modules.append(cPickle)
+
 
         import zodbpickle.slowpickle
         pickle_modules.append(zodbpickle.slowpickle)
         try:
             import zodbpickle.fastpickle
-        except ImportError:
+        except ImportError: # pragma: no cover
             pass
         else:
             pickle_modules.append(zodbpickle.fastpickle)
