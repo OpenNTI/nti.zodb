@@ -50,6 +50,7 @@ setup(
         'perfmetrics',
         'persistent',
         'repoze.zodbconn',
+        'transaction',
         'zc.zlibstorage',
         'ZODB',
         # BTrees is a dependency of ZODB, but we use it directly here,

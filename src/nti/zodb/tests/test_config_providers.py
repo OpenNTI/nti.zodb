@@ -68,6 +68,13 @@ class TestProvideDatabases(ConfiguringTestBase):
         named_db = component.getUtility(IDatabase, "mtemp")
 
         assert_that(named_db, is_(same_instance(default_db)))
+        assert_that(named_db, has_properties(
+            databases=is_(same_instance(default_db.databases))
+        ))
+        assert_that(named_db.databases, is_({
+            '': default_db,
+            'mtemp': named_db
+        }))
         # We sent an event
         # registered mtemp, registered '', DatabaseOpened
         assert_that(events, has_length(3))
@@ -91,7 +98,7 @@ class TestProvideDatabases(ConfiguringTestBase):
 class TestProvideMultiDatabase(ConfiguringTestBase):
     set_up_packages = (('prov_multi.zcml', __name__),)
 
-    def test_provide_multi(self):
+    def test_provide_multi_identical(self):
         from zope import component
         from zope.processlifetime import DatabaseOpened
 
@@ -104,21 +111,142 @@ class TestProvideMultiDatabase(ConfiguringTestBase):
         component.provideHandler(events.append, (None,))
 
         provideDatabases()
-        # This time, no default is provided
-        default_db = component.queryUtility(IDatabase)
+        # Because we detected that they were all identical,
+        # we collapsed them to a single instance.
+        default_db = component.getUtility(IDatabase)
         named_db = component.getUtility(IDatabase, "mtemp")
         named_db2 = component.getUtility(IDatabase, "mtemp2")
 
-        self.assertIsNone(default_db)
-        assert_that(named_db, is_not(same_instance(named_db2)))
+        assert_that(default_db, is_(same_instance(named_db)))
+        assert_that(named_db, is_(same_instance(named_db2)))
         assert_that(named_db, has_properties(
             databases=is_(same_instance(named_db2.databases))
         ))
+        assert_that(named_db.databases, is_({
+            '': default_db,
+            'mtemp': default_db,
+            'mtemp2': default_db,
+        }))
 
-        # No databaseOpened event this time.
-        assert_that(events, has_length(2))
+        # Still sent the db opened event this time.
+        assert_that(events, has_length(4))
+        assert_that([e for e in events if isinstance(e, DatabaseOpened)],
+                    has_length(1))
+
+    def test_provide_multi_distinct_with_root(self):
+        from zope import component
+        from zope.interface import implementer
+        from zope.processlifetime import DatabaseOpened
+
+        from ZODB.interfaces import IDatabase
+
+        from ..interfaces import IZODBZConfigProvider
+        from ..interfaces import IZODBConfigProvider
+        from ..config_providers import provideDatabases
+
+
+        events:list = []
+        component.provideHandler(events.append, (None,))
+
+        @implementer(IZODBZConfigProvider)
+        class TempDBZConfigProvider:
+            def getZConfigString(self):
+                return """
+                <zodb>
+                    <mappingstorage />
+                </zodb>
+                """
+            getDiscriminator = getZConfigString
+
+        # We're not giving a name to this, so it becomes the default.
+        component.provideUtility(TempDBZConfigProvider(), provides=IZODBConfigProvider)
+
+        provideDatabases()
+        # Because we detected that they were all identical,
+        # we collapsed them to a single instance.
+        default_db = component.getUtility(IDatabase)
+        named_db = component.getUtility(IDatabase, "mtemp")
+        named_db2 = component.getUtility(IDatabase, "mtemp2")
+
+        assert_that(default_db, is_not(same_instance(named_db)))
+        assert_that(named_db, is_(same_instance(named_db2)))
+        assert_that(default_db, has_properties(
+            databases=is_(same_instance(named_db2.databases))
+        ))
+        assert_that(named_db, has_properties(
+            databases=is_(same_instance(named_db2.databases))
+        ))
+        assert_that(named_db.databases, is_({
+            '': default_db,
+            'mtemp': named_db,
+            'mtemp2': named_db,
+        }))
+
+        # Still sent the db opened event this time.
+        assert_that(events, has_length(4))
+        assert_that([e for e in events if isinstance(e, DatabaseOpened)],
+                    has_length(1))
+
+    def test_provide_multi_distinct_no_root(self):
+        from zope import component
+        from zope.interface import implementer
+        from zope.processlifetime import DatabaseOpened
+
+        from ZODB.interfaces import IDatabase
+
+        from ..interfaces import IZODBZConfigProvider
+        from ..interfaces import IZODBConfigProvider
+        from ..config_providers import provideDatabases
+
+
+        events:list = []
+        component.provideHandler(events.append, (None,))
+
+        @implementer(IZODBZConfigProvider)
+        class TempDBZConfigProvider:
+            def getZConfigString(self):
+                return """
+                <zodb>
+                    <mappingstorage />
+                </zodb>
+                """
+            getDiscriminator = getZConfigString
+
+        # We're ARE giving a name to this, so it DOES NOT become the default.
+        component.provideUtility(TempDBZConfigProvider(),
+                                 name="mapping",
+                                 provides=IZODBConfigProvider)
+
+        provideDatabases()
+        # Because we detected that they were all identical,
+        # we collapsed them to a single instance.
+        default_db = component.queryUtility(IDatabase)
+        named_db = component.getUtility(IDatabase, "mtemp")
+        named_db2 = component.getUtility(IDatabase, "mtemp2")
+        map_db = component.getUtility(IDatabase, "mapping")
+
+        self.assertIsNone(default_db)
+
+        assert_that(map_db, is_not(same_instance(named_db)))
+
+        assert_that(named_db, is_(same_instance(named_db2)))
+        assert_that(map_db, has_properties(
+            databases=is_(same_instance(named_db2.databases))
+        ))
+        assert_that(named_db, has_properties(
+            databases=is_(same_instance(named_db2.databases))
+        ))
+        assert_that(named_db.databases, is_({
+            'mapping': map_db,
+            'mtemp': named_db,
+            'mtemp2': named_db,
+        }))
+
+        # No DatabaseOpened this time.
+        assert_that(events, has_length(3))
         assert_that([e for e in events if isinstance(e, DatabaseOpened)],
                     has_length(0))
+
 
 if __name__ == '__main__':
     unittest.main()

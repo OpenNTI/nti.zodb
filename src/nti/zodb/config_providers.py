@@ -6,6 +6,9 @@ Implementations of, and helpers for, :class:`~.interfaces.IZODBZConfigProvider`
 
 """
 import logging
+from typing import Any
+
+import transaction
 
 from zope.component import adapter
 from zope.component import getGlobalSiteManager
@@ -104,10 +107,10 @@ class DatabaseProvider:
 
         return existing_databases
 
-    def _collect_provided_dbs(self):
+    def _collect_provided_dbs(self) -> dict[str,tuple[IDatabase,object]]:
         gsm = getGlobalSiteManager()
         # Collect non-overlapping databases.
-        dbs:dict[str,object] = {}
+        dbs:dict[str,tuple[IDatabase,object]] = {}
         for _name, db_provider in gsm.getUtilitiesFor(IZODBProvider):
             provider_dbs = db_provider.getDatabases()
             for k in provider_dbs:
@@ -119,15 +122,31 @@ class DatabaseProvider:
     def getDatabases(self):
         """
         See the documentation for :class:`DatabaseProvider`.
+
+        .. versionchanged:: NEXT
+           Return the mapping of databases as expected.
         """
-        dbs = self._collect_provided_dbs()
-        # We want to register the singleton under both names,
-        # but internally it needs to be the unnamed database.
-        if len(dbs) == 1 and self.REGISTER_SINGLE_AS_DEFAULT:
+        discr_dbs = self._collect_provided_dbs()
+        # Now we implicitly discard duplicates based on discriminator
+        by_discriminator = {
+            discr: db
+            for db, discr
+            in discr_dbs.values()
+        }
+        dbs:dict[str,Any] = {
+            name: by_discriminator[discr]
+            for name, (_db, discr)
+            in discr_dbs.items()
+        }
+
+
+        if len(by_discriminator) == 1 and self.REGISTER_SINGLE_AS_DEFAULT:
+            # Only one distinct database connection, but we will register
+            # under multiple aliases
             name = next(iter(dbs))
             db = dbs[name]
             db.database_name = ''
-            db.databases = {'': db}
+            db.databases = dbs
             dbs[''] = db
         else:
             # These all constitute a multi-database; be sure they all know their own
@@ -141,10 +160,6 @@ class DatabaseProvider:
         existing_databases = self._check_and_update_existing_databases(dbs)
         assert all(d.databases is dbs for d in existing_databases.values())
 
-
-
-
-
         # Register the new ones. Don't also re-register existing ones
         # because that will send a bunch of notifications we don't want to
         # process twice.
@@ -157,6 +172,8 @@ class DatabaseProvider:
         if '' in dbs and '' not in existing_databases:
             root_db = dbs['']
             notify(DatabaseOpened(root_db))
+
+        return dbs
 
 
 provideDatabases = DatabaseProvider().getDatabases
@@ -176,8 +193,24 @@ class ZODBConfigProviderDBProvider:
 
         # Because we only pick up exact registartions for that type --- not
         # sub-interfaces --- we are guaranteed that names will never be duplicated.
+
+        # NOTE: We need to do this (instead of a simple call to
+        # ``IDatabase()``) so that we can use transaction retries
+        # around creating the database --- doing so accesses the
+        # storage and tries to create the root object, but if multiple
+        # processes do so against a shared database (RelStorage) we
+        # may get conflicts that need retried.
+        #
+        # The database uses its own isolated transaction manager to handle
+        # the initial root creation, but it's OK that we use an attempts() mechanism
+        # from the outer manager -- we just need the loop and retry logic.
+        def make_one(provider):
+            for attempt in transaction.attempts():
+                with attempt:
+                    return IDatabase(provider)
+
         dbs = {
-            name: IDatabase(provider)
+            name: (make_one(provider), provider.getDiscriminator())
             for name, provider
             in providers.items()
         }
@@ -210,12 +243,16 @@ class InMemoryDemoStorageZConfigProvider:
     # of the ``provideDatabases -> ZODBConfigProviderDBProvider``
     # pipeline.
 
+    # TODO: This could easily be configured to provide blobs
+    # by wrapping a ``<blobstorage>`` around the demo storage.
     def getZConfigString(self):
         return """
         <zodb>
             <demostorage />
         </zodb>
         """
+
+    getDiscriminator = getZConfigString
 
 
 @implementer(IDatabase)

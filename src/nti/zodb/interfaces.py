@@ -156,9 +156,16 @@ class IZODBProvider(interface.Interface):
 
     def getDatabases():
         """
-        Return a mapping of ``{name: database}`` objects.
+        Return a mapping of ``{name: (database, discriminator)}`` objects.
+
         Each *database* is meant to be registered as a global component
         with the given *name*.
+
+        Equal *discriminator* values imply equal *database* values, and
+        such equal values may be collapsed into a single *database* value.
+        If you cannot determine discriminators, you may use
+        a simple ``object``, but this will defeat the ability to detect
+        multiples.
         """
 
 
@@ -187,6 +194,22 @@ class IZODBConfigProvider(interface.Interface):
     .. versionadded:: 4.3.0
     """
 
+    def getDiscriminator():
+        """
+        Return a hashable object that uniquely represents
+        the database configuration this object holds.
+
+        The intent is that equivalent databases can be detected this way and
+        collapsed into a single entry. In this way we can support aliases.
+
+        The return value is typically a string. If you are unable to
+        create a unique discriminator, you may return an arbitrary
+        hashable object.
+
+        .. versionadded:: NEXT
+        """
+
+
 class IZODBZConfigProvider(interface.Interface):
     """
     This package provides an implementation of this interface for a
@@ -197,6 +220,9 @@ class IZODBZConfigProvider(interface.Interface):
     in the ``configure_configprovider.zcml`` file with the name
     \"mtemp\". No functionality in this package requires this, and you
     can use zope.configuration overrides to cancel this registration.
+
+    The discriminator should typically be the same as the ZConfig string,
+    assuming that it is produced deterministically.
     """
 
     def getZConfigString():

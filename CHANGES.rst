@@ -6,7 +6,11 @@
 4.3.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Make ``provideDatabases`` properly return the mapping of all
+  installed databases.
+- Make ``provideDatabases`` and related APIs detect and collapse equal
+  databases into a single component. This is handy for aliases, for
+  example while evolving a code base.
 
 
 4.3.0 (2024-12-23)
