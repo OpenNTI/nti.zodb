@@ -206,7 +206,7 @@ class IZODBConfigProvider(interface.Interface):
         create a unique discriminator, you may return an arbitrary
         hashable object.
 
-        .. versionadded:: NEXT
+        .. versionadded:: 4.4.0
         """
 
 

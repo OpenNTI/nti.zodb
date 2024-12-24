@@ -123,7 +123,7 @@ class DatabaseProvider:
         """
         See the documentation for :class:`DatabaseProvider`.
 
-        .. versionchanged:: NEXT
+        .. versionchanged:: 4.4.0
            Return the mapping of databases as expected.
         """
         discr_dbs = self._collect_provided_dbs()

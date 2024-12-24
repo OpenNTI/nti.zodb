@@ -3,7 +3,7 @@
 =========
 
 
-4.3.1 (unreleased)
+4.4.0 (2024-12-24)
 ==================
 
 - Make ``provideDatabases`` properly return the mapping of all
