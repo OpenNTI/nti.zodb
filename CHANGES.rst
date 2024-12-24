@@ -6,7 +6,7 @@
 4.4.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Make ``IZODBZConfigProvider`` correctly extend ``IZODBConfigProvider``.
 
 
 4.4.0 (2024-12-24)

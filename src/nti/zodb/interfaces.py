@@ -210,7 +210,7 @@ class IZODBConfigProvider(interface.Interface):
         """
 
 
-class IZODBZConfigProvider(interface.Interface):
+class IZODBZConfigProvider(IZODBConfigProvider):
     """
     This package provides an implementation of this interface for a
     temporary (in-memory) database in :mod:`.config_providers` as well
