@@ -3,7 +3,7 @@
 =========
 
 
-4.4.1 (unreleased)
+4.4.1 (2024-12-24)
 ==================
 
 - Make ``IZODBZConfigProvider`` correctly extend ``IZODBConfigProvider``.
