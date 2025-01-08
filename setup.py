@@ -16,7 +16,7 @@ def _read(fname):
 
 setup(
     name='nti.zodb',
-    version='4.5.0',
+    version='4.5.1.dev0',
     author='Jason Madden',
     author_email='jason@nextthought.com',
     description="Utilities for ZODB",
