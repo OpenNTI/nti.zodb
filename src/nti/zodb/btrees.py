@@ -129,6 +129,20 @@ def _make_large_module(existing_module, generic_prefix, real_prefix):
         for name in iface:
             if not hasattr(new_module, name):
                 setattr(new_module, name, getattr(existing_module, name))
+    # BTrees up through at least 6.1 doesn't properly specify these in
+    # interfaces provided by the modules so they can't be added automatically.
+    # TODO: Should we give the module a ``__getattr__``? That's available since
+    # Python 3.7.
+    for not_in_iface in (
+        'difference',
+        'intersection',
+        'multiunion',
+        'union',
+        'weightedIntersection',
+        'weightedUnion',
+    ):
+        if hasattr(existing_module, not_in_iface) and not hasattr(new_module, not_in_iface):
+            setattr(new_module, not_in_iface, getattr(existing_module, not_in_iface))
     sys.modules[new_module.__name__] = new_module
     return new_module
 

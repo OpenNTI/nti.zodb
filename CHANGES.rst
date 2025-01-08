@@ -3,10 +3,12 @@
 =========
 
 
-4.4.2 (unreleased)
+4.5.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Make the modules in ``nti.zodb.btrees.family64LargeBuckets``
+  properly provide the set operations like ``multiunion``. Previously,
+  due to an error in ``BTrees``, these were not available.
 
 
 4.4.1 (2024-12-24)
