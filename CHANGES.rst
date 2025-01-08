@@ -3,7 +3,7 @@
 =========
 
 
-4.5.0 (unreleased)
+4.5.0 (2025-01-08)
 ==================
 
 - Make the modules in ``nti.zodb.btrees.family64LargeBuckets``
